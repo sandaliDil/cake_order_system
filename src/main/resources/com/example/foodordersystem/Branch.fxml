@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="664.0" prefWidth="893.0" stylesheets="@css/StyleSheet.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.foodordersystem.controller.BranchController">
+   <children>
+      <AnchorPane layoutX="-10.0" layoutY="1.0" prefHeight="670.0" prefWidth="920.0" style="-fx-background-color: #ffffff;;" stylesheets="@css/StyleSheet.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <TextField fx:id="branchNameField" layoutX="203.0" layoutY="116.0" prefHeight="40.0" prefWidth="295.0">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </TextField>
+            <TextField fx:id="branchCodeField" layoutX="203.0" layoutY="190.0" prefHeight="40.0" prefWidth="295.0">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </TextField>
+            <Label layoutX="63.0" layoutY="122.0" text="Branch name">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <Label layoutX="65.0" layoutY="196.0" text="Branch code">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <Button layoutX="226.0" layoutY="255.0" mnemonicParsing="false" onAction="#addBranch" prefHeight="27.0" prefWidth="106.0" style="-fx-background-color: #27b786;" text="Save " textFill="#fcf9f9">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+            <Button layoutX="370.0" layoutY="255.0" mnemonicParsing="false" prefHeight="27.0" prefWidth="98.0" style="-fx-background-color: #d10e00;" text="Clear" textFill="#fcf6f6">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </Button>
+            <Label layoutX="571.0" layoutY="82.0" prefHeight="40.0" prefWidth="302.0" text="Number Of Branches :">
+               <font>
+                  <Font name="System Bold" size="28.0" />
+               </font>
+            </Label>
+            <Label fx:id="branchCountLabel1" layoutX="704.0" layoutY="120.0" prefHeight="58.0" prefWidth="78.0" text="00" textOverrun="LEADING_ELLIPSIS">
+               <font>
+                  <Font size="36.0" />
+               </font>
+            </Label>
+            <TableView fx:id="branchTable" layoutX="63.0" layoutY="322.0" prefHeight="295.0" prefWidth="787.0">
+              <columns>
+                <TableColumn fx:id="branchCodeColumn" prefWidth="187.99993896484375" text="Branch Code " />
+                <TableColumn fx:id="branchNameColumn" prefWidth="335.19996643066406" text="Branch Name " />
+                  <TableColumn fx:id="actionColumn" prefWidth="257.60003662109375" />
+              </columns>
+            </TableView>
+            <TextField fx:id="searchBox" layoutX="271.0" layoutY="32.0" prefHeight="40.0" prefWidth="295.0" promptText="Search by branch name..." styleClass="search-box" />
+            <ImageView fitHeight="207.0" fitWidth="193.0" layoutX="498.0" layoutY="134.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@image/branch.png" />
+               </image>
+            </ImageView>
+            <ImageView fitHeight="40.0" fitWidth="33.0" layoutX="511.0" layoutY="36.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@image/icons8-search-26.png" />
+               </image>
+            </ImageView>
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>

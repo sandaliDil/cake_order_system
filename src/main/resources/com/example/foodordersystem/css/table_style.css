@@ -1,0 +1,4 @@
+.table-view .column-header {
+    -fx-font-weight: normal; /* Removes bold font */
+    -fx-font-size: 12px;    /* Optional: Adjust the font size */
+}

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="439.0" prefWidth="726.0" style="-fx-background-color: #ffffff;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.foodordersystem.controller.AddProductController">
+   <children>
+      <Label layoutX="30.0" layoutY="170.0" text="Product name">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <Label layoutX="32.0" layoutY="248.0" text="Product Code">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <Button fx:id="saveButton" layoutX="162.0" layoutY="324.0" mnemonicParsing="false" onAction="#handleSaveProduct" prefHeight="34.0" prefWidth="106.0" style="-fx-background-color: #27b786;" text="Save " textFill="#fcf9f9">
+         <font>
+            <Font name="System Bold" size="20.0" />
+         </font>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+      </Button>
+      <Button layoutX="289.0" layoutY="324.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="98.0" style="-fx-background-color: #d10e00;" text="Clear" textFill="#fcf6f6">
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+      </Button>
+      <TextField fx:id="productNameField" layoutX="167.0" layoutY="164.0" prefHeight="26.0" prefWidth="228.0">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </TextField>
+      <Label layoutX="93.0" layoutY="36.0" prefHeight="62.0" prefWidth="244.0" text="Add Product">
+         <font>
+            <Font name="System Bold Italic" size="40.0" />
+         </font>
+      </Label>
+      <TextField fx:id="productCodeField" layoutX="167.0" layoutY="242.0" prefHeight="26.0" prefWidth="228.0">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </TextField>
+      <ImageView fitHeight="403.0" fitWidth="334.0" layoutX="395.0" layoutY="67.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@image/addProduct.jpg" />
+         </image>
+      </ImageView>
+   </children>
+</AnchorPane>

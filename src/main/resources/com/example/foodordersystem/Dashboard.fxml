@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="726.0" prefWidth="1407.0" style="-fx-background-color: #ffffff;" stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.foodordersystem.controller.DashboardController">
+   <children>
+      <AnchorPane layoutY="-2.0" prefHeight="826.0" prefWidth="330.0" styleClass="sidebar">
+         <children>
+            <ImageView fitHeight="106.0" fitWidth="108.0" layoutX="95.0" layoutY="72.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@image/final-1.png" />
+               </image>
+            </ImageView>
+            <Label layoutX="115.0" layoutY="189.0" prefHeight="27.0" prefWidth="114.0" text="ADMIN" textFill="#282222">
+               <font>
+                  <Font name="Calibri Bold Italic" size="18.0" />
+               </font>
+            </Label>
+            <ImageView fitHeight="30.0" fitWidth="30.0" layoutX="280.0" layoutY="635.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@image/logOut.png" />
+               </image>
+            </ImageView>
+            <Button fx:id="logout" alignment="TOP_RIGHT" layoutX="162.0" layoutY="633.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="106.0" style="-fx-background-color: #08662e;" text="LogOut" textFill="#fcf5f5">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Button>
+            <Button alignment="TOP_LEFT" layoutX="71.0" layoutY="346.0" mnemonicParsing="false" onAction="#handleViewProduct" prefHeight="46.0" prefWidth="203.0" style="-fx-background-color: #27b786;" text="View Product" textFill="#282626">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
+            <VBox layoutX="2.0" layoutY="573.0" prefHeight="54.0" prefWidth="43.0">
+               <children>
+                  <VBox prefHeight="200.0" prefWidth="100.0" />
+               </children>
+            </VBox>
+            <VBox layoutX="17.0" layoutY="535.0" prefHeight="44.0" prefWidth="51.0" />
+            <ImageView fitHeight="27.0" fitWidth="27.0" layoutX="33.0" layoutY="356.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@image/productlist.png" />
+               </image>
+            </ImageView>
+            <Button fx:id="handleAddProduct" alignment="TOP_LEFT" layoutX="71.0" layoutY="418.0" mnemonicParsing="false" onAction="#handleAddProduct" prefHeight="44.0" prefWidth="203.0" style="-fx-background-color: #27b786;" text="Users" textFill="#232121">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
+            <ImageView fitHeight="34.0" fitWidth="30.0" layoutX="30.0" layoutY="426.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@image/userlogo.png" />
+               </image>
+            </ImageView>
+            <ImageView fitHeight="34.0" fitWidth="30.0" layoutX="30.0" layoutY="493.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@image/images.png" />
+               </image>
+            </ImageView>
+            <Button alignment="TOP_LEFT" layoutX="71.0" layoutY="486.0" mnemonicParsing="false" onAction="#handleOrders" prefHeight="44.0" prefWidth="203.0" style="-fx-background-color: #27b786;" text="Order Summary " textFill="#1e1d1d">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
+            <Button fx:id="logout1" alignment="TOP_RIGHT" layoutX="162.0" layoutY="633.0" mnemonicParsing="false" onAction="#logout" prefHeight="34.0" prefWidth="106.0" style="-fx-background-color: #27b786;" text="LogOut" textFill="#3e3a3a">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Button>
+            <ImageView fitHeight="34.0" fitWidth="29.0" layoutX="28.0" layoutY="562.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@image/branchIcon.png" />
+               </image>
+            </ImageView>
+            <Button alignment="TOP_LEFT" layoutX="71.0" layoutY="557.0" mnemonicParsing="false" onAction="#handleBranch" prefHeight="44.0" prefWidth="203.0" style="-fx-background-color: #27b786;" text="Branch" textFill="#101010">
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Button>
+         </children>
+      </AnchorPane>
+      <ImageView fitHeight="25.0" fitWidth="25.0" layoutX="1156.0" layoutY="17.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@image/icons8_bell_24px.png" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="27.0" fitWidth="25.0" layoutX="1181.0" layoutY="17.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@image/icons8_help_32px.png" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="30.0" fitWidth="25.0" layoutX="1212.0" layoutY="17.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@image/icons8_settings_26px.png" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="25.0" fitWidth="25.0" layoutX="1246.0" layoutY="17.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@image/icons8_slider_50px.png" />
+         </image>
+      </ImageView>
+      <Label alignment="CENTER" layoutX="322.0" layoutY="114.0" prefHeight="30.0" prefWidth="161.0" text="Dashboard" textFill="#141618">
+         <font>
+            <Font name="Arial Narrow Bold Italic" size="23.0" />
+         </font>
+      </Label>
+      <AnchorPane layoutX="357.0" layoutY="177.0" prefHeight="138.0" prefWidth="212.0" style="-fx-border-radius: 0px 50px 0px 0px; -fx-border-color: #F1F2F7;">
+         <effect>
+            <DropShadow color="#9a9696" />
+         </effect>
+         <children>
+            <ImageView fitHeight="75.0" fitWidth="75.0" layoutX="7.0" layoutY="25.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@image/userCount.png" />
+               </image>
+            </ImageView>
+            <Label alignment="CENTER" layoutX="85.0" layoutY="14.0" prefHeight="34.0" prefWidth="89.0" text="Users" textFill="#10563a">
+               <font>
+                  <Font name="Arial Bold" size="20.0" />
+               </font>
+            </Label>
+            <Label fx:id="userCountLabel" layoutX="105.0" layoutY="50.0" prefHeight="64.0" prefWidth="71.0" text="000">
+               <font>
+                  <Font size="42.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+      <AnchorPane layoutX="603.0" layoutY="178.0" prefHeight="138.0" prefWidth="252.0" style="-fx-border-radius: 0px 50px 0px 0px; -fx-border-color: #F1F2F7;">
+         <effect>
+            <DropShadow color="#9a9696" />
+         </effect>
+         <children>
+            <ImageView fitHeight="75.0" fitWidth="79.0" layoutY="24.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@image/order.png" />
+               </image>
+            </ImageView>
+            <Label alignment="CENTER" layoutX="79.0" layoutY="24.0" prefHeight="27.0" prefWidth="120.0" text="Order Count" textFill="#10563a">
+               <font>
+                  <Font name="Arial Bold" size="20.0" />
+               </font>
+            </Label>
+            <Label fx:id="orderCountLabel" layoutX="87.0" layoutY="51.0" prefHeight="64.0" prefWidth="154.0">
+               <font>
+                  <Font size="42.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+      <AnchorPane layoutX="1120.0" layoutY="178.0" prefHeight="138.0" prefWidth="231.0" style="-fx-border-radius: 0px 50px 0px 0px; -fx-border-color: #F1F2F7;">
+         <effect>
+            <DropShadow color="#9a9696" />
+         </effect>
+         <children>
+            <ImageView fitHeight="99.0" fitWidth="71.0" layoutX="14.0" layoutY="44.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@image/product.png" />
+               </image>
+            </ImageView>
+            <Label alignment="CENTER" layoutX="63.0" layoutY="14.0" prefHeight="27.0" prefWidth="146.0" text="Product Count" textFill="#10563a">
+               <font>
+                  <Font name="Arial Bold" size="20.0" />
+               </font>
+            </Label>
+            <Label fx:id="productCountLabel" layoutX="124.0" layoutY="47.0" prefHeight="64.0" prefWidth="75.0" text="000">
+               <font>
+                  <Font size="42.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+      <AnchorPane layoutX="868.0" layoutY="178.0" prefHeight="138.0" prefWidth="239.0" style="-fx-border-radius: 0px 50px 0px 0px; -fx-border-color: #F1F2F7;">
+         <effect>
+            <DropShadow color="#9a9696" />
+         </effect>
+         <children>
+            <ImageView fitHeight="75.0" fitWidth="90.0" layoutX="14.0" layoutY="19.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@image/shop.png" />
+               </image>
+            </ImageView>
+            <Label alignment="CENTER" layoutX="102.0" layoutY="19.0" prefHeight="27.0" prefWidth="137.0" text="Branch Count" textFill="#10563a">
+               <font>
+                  <Font name="Arial Bold" size="20.0" />
+               </font>
+            </Label>
+            <Label fx:id="branchCountLabel" layoutX="102.0" layoutY="46.0" prefHeight="64.0" prefWidth="137.0">
+               <font>
+                  <Font size="42.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+      <Button fx:id="close" contentDisplay="RIGHT" layoutX="1313.0" layoutY="7.0" mnemonicParsing="false" onAction="#closeButton" prefHeight="34.0" prefWidth="42.0" style="-fx-background-color: #D02323;" text="X" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="21.0" />
+         </font>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+      </Button>
+      <TextField layoutX="569.0" layoutY="58.0" opacity="0.5" prefHeight="34.0" prefWidth="486.0" promptText="Search Drive" style="-fx-background-color: transparent; -fx-border-radius: 50px; -fx-border-color: #AEB2C3;" text="Search Drive">
+         <font>
+            <Font name="Arial" size="12.0" />
+         </font>
+         <effect>
+            <DropShadow color="#b9b6b6" />
+         </effect>
+      </TextField>
+      <VBox fx:id="pieChartContainer" layoutX="982.0" layoutY="334.0" prefHeight="366.0" prefWidth="373.0" />
+      <VBox fx:id="barChartContainer" layoutX="345.0" layoutY="340.0" prefHeight="421.0" prefWidth="617.0" />
+   </children>
+</AnchorPane>

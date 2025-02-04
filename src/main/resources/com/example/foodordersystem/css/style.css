@@ -1,0 +1,111 @@
+/* General Styling */
+.root {
+    -fx-background-color: #f4f9f4;
+    -fx-padding: 20px;
+    -fx-font-family: "Arial";
+}
+
+.table-view .column-header .label {
+    -fx-text-rotation: 90; /* 90 degrees for crosswise */
+    -fx-font-size: 14px;   /* Optional: adjust font size */
+    -fx-alignment: center; /* Center align the text */
+}
+
+.table-view {
+    -fx-background-color: #D3FDEE;
+    -fx-background-radius: 10px, 10px, 10px, 10px;
+    -fx-border-color: #27b786;
+    -fx-border-width: 2px;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #D3FDEE;
+    -fx-background-radius: 10px 10px 0 0;
+}
+
+.table-view .cell {
+    -fx-padding: 4px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.table-view .row:hover {
+    -fx-background-color: #e9f5f5;
+}
+
+/* Custom Choice Box */
+.custom-choice-box {
+    -fx-background-color: #D3FDEE;
+    -fx-border-color: #27b786;
+    -fx-border-width: 2px;
+    -fx-font-size: 14px;
+    -fx-background-radius: 15px;
+    -fx-padding: 8px;
+    -fx-background-radius: 10px 10px 0 0;
+
+}
+
+.custom-choice-box .list-view .list-cell {
+    -fx-padding: 8px;
+    -fx-background-color: #F0F0F0;
+    -fx-text-fill: #333;
+}
+
+.custom-choice-box .list-view .list-cell:hover {
+    -fx-background-color: #27b786;
+    -fx-text-fill: white;
+}
+
+.quantity-field {
+    -fx-background-color: lightyellow;
+    -fx-padding: 6px;
+    -fx-font-size: 16px;
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-background-color: #27b786;
+    -fx-background-radius: 0 50px 0 0;
+    -fx-padding: 10px;
+}
+
+.sidebar-btn {
+    -fx-background-color: transparent;
+}
+
+.sidebar-btn-text {
+    -fx-text-fill: #A2BEE8;
+}
+
+.sidebar-btn:hover .sidebar-btn-text {
+    -fx-text-fill: #7AA2E7;
+}
+
+/* Button Styling */
+.labbtn {
+    -fx-background-color: #FEFFFD;
+    -fx-background-radius: 50px;
+    -fx-padding: 10px 20px;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+@media screen and (max-width: 600px) {
+    .table-view .cell {
+        -fx-font-size: 12px;
+    }
+
+    .custom-choice-box, .labbtn, .quantity-field {
+        -fx-font-size: 12px;
+    }
+}
+
+@media screen and (min-width: 601px) {
+    .table-view .cell {
+        -fx-font-size: 16px;
+    }
+
+    .custom-choice-box, .labbtn, .quantity-field {
+        -fx-font-size: 14px;
+    }
+}

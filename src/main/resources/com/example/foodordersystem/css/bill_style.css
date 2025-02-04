@@ -1,0 +1,36 @@
+/* Style for the TableView */
+.table-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #c0c0c0;
+    -fx-border-radius: 5;
+    -fx-table-cell-border-color: #dcdcdc;
+}
+
+/* Style for the table column headers */
+.table-column-header {
+    -fx-background-color: #d7e4f7; /* Light blue background for headers */
+    -fx-border-color: #c0c0c0;
+    -fx-text-fill: #333333;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER;
+}
+
+/* Style for table rows */
+.table-row-cell {
+    -fx-background-color: #f9f9f9; /* Light gray for alternating rows */
+}
+
+.table-row-cell:empty {
+    -fx-background-color: #ffffff; /* White background for empty rows */
+}
+
+/* Specific column styles (optional) */
+.column01 {
+    -fx-alignment: CENTER_LEFT;
+    -fx-font-size: 14px;
+}
+
+.column02 {
+    -fx-alignment: CENTER;
+    -fx-font-size: 12px;
+}
