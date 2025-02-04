@@ -19,7 +19,7 @@ public class OrderRepository {
      * @return The generated order ID, or -1 if saving failed.
      */
     public int saveOrder(Order order) {
-        String orderQuery = "INSERT INTO Orders (user_id, branch_id, order_date, `option`) VALUES (?, ?, ?, ?)";
+        String orderQuery = "INSERT INTO Orders (user_id, branch_id, order_date, `option`, status) VALUES (?, ?, ?, ?, ?)";
         String orderItemQuery = "INSERT INTO OrderItem (order_id, product_id, quantity) VALUES (?, ?, ?)";
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection()) {
@@ -31,6 +31,7 @@ public class OrderRepository {
                 orderStatement.setInt(2, order.getBranchId());
                 orderStatement.setDate(3, Date.valueOf(order.getOrderDate()));
                 orderStatement.setString(4, order.getOption());
+                orderStatement.setBoolean(5, order.isStatus(true)); // Add status field
 
                 int rowsAffected = orderStatement.executeUpdate();
                 if (rowsAffected > 0) {
@@ -56,6 +57,7 @@ public class OrderRepository {
         }
         return -1; // Return -1 on failure
     }
+
 
     /**
      * Helper method to save order items.
@@ -447,6 +449,22 @@ public class OrderRepository {
             }
         }
         return null;
+    }
+
+    public int countPendingOrders() {
+        String query = "SELECT COUNT(*) FROM Orders WHERE status = 0";
+
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error counting pending orders: " + e.getMessage());
+        }
+        return 0; // Return 0 if an error occurs
     }
 
 }

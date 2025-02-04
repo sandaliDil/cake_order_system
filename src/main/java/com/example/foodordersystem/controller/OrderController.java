@@ -6,15 +6,18 @@ import com.example.foodordersystem.model.Order;
 import com.example.foodordersystem.model.OrderProduct;
 import com.example.foodordersystem.model.Product;
 import com.example.foodordersystem.model.User;
+import com.example.foodordersystem.repository.OrderRepository;
 import com.example.foodordersystem.service.BranchService;
 import com.example.foodordersystem.service.OrderService;
 import com.example.foodordersystem.service.ProductService;
 
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -31,9 +34,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -72,7 +77,14 @@ public class OrderController {
     private ComboBox<String> printerComboBox;
     @FXML
     private Label totalQuantityLabel;
+    @FXML
+    private Label notificationLabel;
+    @FXML
+    private AnchorPane notificationBar;
+    @FXML
+    private Button closeNotificationBtn;
 
+    private final OrderRepository orderRepository = new OrderRepository();
     private BranchService branchService;
     private ProductService productService;
     private OrderService orderService;
@@ -131,7 +143,57 @@ public class OrderController {
             }
         });
 
+        updatePendingOrdersNotification();
+        startOrderNotificationChecker();
+
+        // Hide notification when clicking close button
+        closeNotificationBtn.setOnAction(event -> hideNotification());
+
        // searchOrderButton.setOnAction(event -> searchOrderById());
+    }
+
+    private void updatePendingOrdersNotification() {
+        int pendingOrders = orderRepository.countPendingOrders();
+
+        Platform.runLater(() -> {
+            if (pendingOrders > 0) {
+                notificationLabel.setText("🚀 Pending Orders: " + pendingOrders);
+                showNotification();
+            } else {
+                hideNotification();
+            }
+        });
+    }
+
+    private void showNotification() {
+        notificationBar.setVisible(true);
+        FadeTransition fadeIn = new FadeTransition(Duration.millis(500), notificationBar);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
+        fadeIn.play();
+    }
+
+    private void hideNotification() {
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(500), notificationBar);
+        fadeOut.setFromValue(1);
+        fadeOut.setToValue(0);
+        fadeOut.setOnFinished(event -> notificationBar.setVisible(false));
+        fadeOut.play();
+    }
+
+    private void startOrderNotificationChecker() {
+        Thread notificationThread = new Thread(() -> {
+            while (true) {
+                updatePendingOrdersNotification();
+                try {
+                    Thread.sleep(10000); // Check every 10 seconds
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        });
+        notificationThread.setDaemon(true);
+        notificationThread.start();
     }
 
 
@@ -504,7 +566,7 @@ public class OrderController {
         if (loggedInUser == null) {
             System.out.println("No user is logged in.");
             showAlert("Error", "Please log in to place an order.");
-            return -1;  // Return -1 to indicate failure
+            return -1;
         }
 
         Order order = new Order();
@@ -515,35 +577,34 @@ public class OrderController {
         if (selectedBranchName == null) {
             System.out.println("Branch is not selected.");
             showAlert("Error", "Please select a branch.");
-            return -1;  // Return -1 if validation fails
+            return -1;
         }
 
         Branch selectedBranch = getBranchByName(selectedBranchName);
         if (selectedBranch == null) {
             System.out.println("Branch not found.");
             showAlert("Error", "Selected branch is not valid.");
-            return -1;  // Return -1 if branch is not valid
+            return -1;
         }
         order.setBranchId(selectedBranch.getId());
 
         if (orderDatePicker.getValue() == null) {
             System.out.println("Order date is not selected.");
             showAlert("Error", "Please select an order date.");
-            return -1;  // Return -1 if date is not selected
+            return -1;
         }
         order.setOrderDate(orderDatePicker.getValue());
 
-        // Check if there's already an order for this branch on the same day
+        // Check if an order for this branch already exists on the same day
         boolean orderExists = orderService.checkOrderExists(selectedBranch.getId(), order.getOrderDate());
         if (orderExists) {
             System.out.println("An order for this branch already exists on the same day.");
             showAlert("Error", "An order for this branch has already been placed today.");
-            return -1;  // Return -1 to prevent saving the same order
+            return -1;
         }
 
         // Capture the selected checkboxes and assign them to the order
         String selectedOption = "0";  // Default value if no checkboxes are selected
-
         if (checkbox1.isSelected()) {
             selectedOption = "ළග කඩ";
         } else if (checkbox2.isSelected()) {
@@ -551,8 +612,7 @@ public class OrderController {
         } else if (checkbox3.isSelected()) {
             selectedOption = "අපේ කඩ";
         }
-
-        order.setOption(String.valueOf(selectedOption));  // Assuming you have a method to set this in the Order model
+        order.setOption(selectedOption);
 
         List<OrderProduct> orderProducts = new ArrayList<>();
         if (!addOrderProductsFromTable(productTable1, orderProducts) ||
@@ -560,21 +620,24 @@ public class OrderController {
                 !addOrderProductsFromTable(productTable3, orderProducts)) {
             System.out.println("Invalid quantity in order.");
             showAlert("Error", "Please enter valid quantities for all products.");
-            return -1;  // Return -1 if there are invalid quantities
+            return -1;
         }
 
         order.setItems(orderProducts);
 
+        // **Set the status as TRUE before saving**
+        order.setStatus(true);
+
         // Save the order and retrieve the orderId after saving
-        int orderId = orderService.saveOrder(order);  // Save order and get orderId
+        int orderId = orderService.saveOrder(order);
 
         if (orderId != -1) {
             System.out.println("Order saved successfully with ID: " + orderId);
-            showAlert("Error", "Order saved successfully." + orderId);
-            return orderId;  // Return the orderId after successful save
+            showAlert("Success", "Order saved successfully. Order ID: " + orderId);
+            return orderId;
         } else {
             showAlert("Error", "Failed to save the order. Please try again.");
-            return -1;  // Return -1 if saving the order failed
+            return -1;
         }
     }
 

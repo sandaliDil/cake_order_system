@@ -30,7 +30,7 @@ public class Order {
     public Order(int id, int branchId, int userId, String userName, LocalDate orderDate, String option, boolean status) {
     }
 
-    public boolean isStatus() {
+    public boolean isStatus(Boolean aBoolean) {
         return status;
     }
 
