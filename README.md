@@ -19,4 +19,4 @@ Order Management System is a JavaFX desktop application designed to manage order
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/wasanabakers/cake-orders-java.git
+   git clone https://github.com/sandaliDil/cake_order_system.git
