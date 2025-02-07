@@ -1,5 +1,6 @@
 package com.example.foodordersystem.service;
 
+import com.example.foodordersystem.model.OrderProduct;
 import com.example.foodordersystem.model.Product;
 import com.example.foodordersystem.repository.ProductRepository;
 
@@ -53,5 +54,6 @@ public class ProductService {
     public int getProductCount() {
         return productRepository.getProductCount();
     }
+
 
 }

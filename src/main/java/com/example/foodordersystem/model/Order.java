@@ -1,6 +1,8 @@
 package com.example.foodordersystem.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 public class Order {
@@ -11,23 +13,43 @@ public class Order {
     private LocalDate orderDate;
     private String option;
     private boolean status;
+    private String timeRange;
+
+    public Order(int id, List<OrderProduct> items, boolean status, String option, LocalDate orderDate, String userName, int userId, int branchId) {
+        this.id = id;
+        this.items = items;
+        this.status = status;
+        this.option = option;
+        this.orderDate = LocalDate.from(orderDate.atStartOfDay());
+        this.userName = userName;
+        this.userId = userId;
+        this.branchId = branchId;
+    }
+
     private List<OrderProduct> items;
 
     public Order() {
     }
 
-    public Order(int id, int branchId, int userId, String userName, LocalDate orderDate, String option, List<OrderProduct> items, boolean status) {
+    public Order(int id, int branchId, int userId, String userName, LocalDate orderDate, LocalDate orderDate1, String option, String timeRange, boolean status) {
+    }
+
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public Order(int id, int branchId, int userId, String userName, LocalDate orderDate, String option, boolean status,
+                 String timeRange, List<OrderProduct> items) {
         this.id = id;
         this.branchId = branchId;
         this.userId = userId;
         this.userName = userName;
         this.orderDate = orderDate;
         this.option = option;
-        this.status=status;
+        this.status = status;
+        this.timeRange = timeRange;
         this.items = items;
-    }
-
-    public Order(int id, int branchId, int userId, String userName, LocalDate orderDate, String option, boolean status) {
     }
 
     public boolean isStatus(Boolean aBoolean) {
@@ -74,8 +96,8 @@ public class Order {
         return orderDate;
     }
 
-    public void setOrderDate(LocalDate orderDate) {
-        this.orderDate = orderDate;
+    public void setOrderDate(LocalDateTime orderDate) {
+        this.orderDate = LocalDate.from(orderDate);
     }
 
     public String getOption() {
@@ -92,5 +114,17 @@ public class Order {
 
     public void setItems(List<OrderProduct> items) {
         this.items = items;
+    }
+
+    public void setOrderDate(LocalDate orderDate) {
+        this.orderDate = orderDate;
+    }
+
+    public String getTimeRange() {
+        return timeRange;
+    }
+
+    public void setTimeRange(String timeRange) {
+        this.timeRange = timeRange;
     }
 }

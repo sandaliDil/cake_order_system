@@ -1,6 +1,7 @@
 package com.example.foodordersystem.controller;
 
 import com.example.foodordersystem.Session;
+import com.example.foodordersystem.database.DatabaseConnection;
 import com.example.foodordersystem.model.Branch;
 import com.example.foodordersystem.model.Order;
 import com.example.foodordersystem.model.OrderProduct;
@@ -41,9 +42,14 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+
 
 public class OrderController {
 
@@ -73,6 +79,10 @@ public class OrderController {
     private CheckBox checkbox2;
     @FXML
     private CheckBox checkbox3;
+    @FXML
+    private CheckBox morning;
+    @FXML
+    private CheckBox afternoon;
     @FXML
     private ComboBox<String> printerComboBox;
     @FXML
@@ -140,6 +150,18 @@ public class OrderController {
             if (checkbox3.isSelected()) {
                 checkbox1.setSelected(false);
                 checkbox2.setSelected(false);
+            }
+        });
+
+        morning.setOnAction(event -> {
+            if (morning.isSelected()) {
+                afternoon.setSelected(false);
+            }
+        });
+
+        afternoon.setOnAction(event -> {
+            if (afternoon.isSelected()) {
+                morning.setSelected(false);
             }
         });
 
@@ -588,23 +610,38 @@ public class OrderController {
         }
         order.setBranchId(selectedBranch.getId());
 
+        // Validate order date
         if (orderDatePicker.getValue() == null) {
             System.out.println("Order date is not selected.");
             showAlert("Error", "Please select an order date.");
             return -1;
         }
-        order.setOrderDate(orderDatePicker.getValue());
+        order.setOrderDate(orderDatePicker.getValue().atStartOfDay());
 
-        // Check if an order for this branch already exists on the same day
-        boolean orderExists = orderService.checkOrderExists(selectedBranch.getId(), order.getOrderDate());
-        if (orderExists) {
-            System.out.println("An order for this branch already exists on the same day.");
-            showAlert("Error", "An order for this branch has already been placed today.");
+        // Validate time range selection
+        String selectedTime = null;
+        if (morning.isSelected()) {
+            selectedTime = "morning";
+        } else if (afternoon.isSelected()) {
+            selectedTime = "afternoon";
+        }
+
+        if (selectedTime == null) {
+            System.out.println("Time range is not selected.");
+            showAlert("Error", "Please select a time range (Morning or Afternoon).");
+            return -1;
+        }
+        order.setTimeRange(selectedTime);
+
+        // Prevent duplicate orders for the same branch, date, and time range
+        if (orderService.checkOrderExists(selectedBranch.getId(), order.getOrderDate(), selectedTime)) {
+            System.out.println("An order for this branch at this time already exists.");
+            showAlert("Error", "An order for this branch has already been placed at this time.");
             return -1;
         }
 
-        // Capture the selected checkboxes and assign them to the order
-        String selectedOption = "0";  // Default value if no checkboxes are selected
+        // Capture the selected option (Checkbox selection)
+        String selectedOption = "0";  // Default value
         if (checkbox1.isSelected()) {
             selectedOption = "ළග කඩ";
         } else if (checkbox2.isSelected()) {
@@ -614,6 +651,7 @@ public class OrderController {
         }
         order.setOption(selectedOption);
 
+        // Validate and add order products
         List<OrderProduct> orderProducts = new ArrayList<>();
         if (!addOrderProductsFromTable(productTable1, orderProducts) ||
                 !addOrderProductsFromTable(productTable2, orderProducts) ||
@@ -624,11 +662,9 @@ public class OrderController {
         }
 
         order.setItems(orderProducts);
-
-        // **Set the status as TRUE before saving**
         order.setStatus(true);
 
-        // Save the order and retrieve the orderId after saving
+        // Save the order
         int orderId = orderService.saveOrder(order);
 
         if (orderId != -1) {

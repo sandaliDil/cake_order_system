@@ -38,8 +38,8 @@ public class OrderService {
         return orderRepository.getAllOrders();
     }
 
-    public boolean checkOrderExists(int branchId, LocalDate orderDate) {
-        return orderRepository.checkOrderExists(branchId, orderDate);
+    public boolean checkOrderExists(int branchId, LocalDate orderDate, String timeRange) {
+        return orderRepository.checkOrderExists(branchId, orderDate, timeRange);
     }
 
     /**
@@ -55,4 +55,9 @@ public class OrderService {
     public Order getOrderById(int orderId) {
         return orderRepository.getOrderById(orderId);
     }
+
+    public boolean checkOrderExistsInLastHour(int branchId) {
+        return !orderRepository.checkOrderExistsInLastHour(branchId);
+    }
+
 }

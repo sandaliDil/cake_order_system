@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.foodordersystem.controller.OrderDetailsController">
+    <VBox spacing="10" prefWidth="500" prefHeight="400">
+
+        <Label text="Order Details" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+
+        <HBox spacing="10">
+            <Label text="Order ID:"/>
+            <Label fx:id="orderIdLabel"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Date:"/>
+            <Label fx:id="orderDateLabel"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="User:"/>
+            <Label fx:id="userNameLabel"/>
+        </HBox>
+
+        <HBox spacing="10">
+            <Label text="Order Option:"/>
+            <Label fx:id="orderOptionLabel"/>
+        </HBox>
+
+        <Label text="Ordered Products" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+
+        <TableView fx:id="productTable">
+            <columns>
+                <TableColumn fx:id="productIdColumn" text="Product ID" prefWidth="150"/>
+                <TableColumn fx:id="quantityColumn" text="Quantity" prefWidth="150"/>
+            </columns>
+        </TableView>
+
+<!--        <Button text="Close" onAction="#closeWindow"/>-->
+    </VBox>
+</AnchorPane>

@@ -37,4 +37,6 @@ public class OrderProduct {
     public void setOrderId(int orderId) {
         this.orderId = orderId;
     }
+
+
 }

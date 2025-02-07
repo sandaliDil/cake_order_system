@@ -9,10 +9,10 @@ import java.util.Properties;
 
 public class DatabaseConnection {
     private static volatile DatabaseConnection instance;
-    private Connection connection;
-    private String url;
-    private String username;
-    private String password;
+    private static Connection connection;
+    private static String url;
+    private static String username;
+    private static String password;
 
     public DatabaseConnection() {
         loadConfig();
@@ -38,7 +38,7 @@ public class DatabaseConnection {
         password = properties.getProperty("db.password");
     }
 
-    public Connection getConnection() {
+    public static Connection getConnection() {
         try {
             if (connection == null || connection.isClosed()) {
                 connection = DriverManager.getConnection(url, username, password);
