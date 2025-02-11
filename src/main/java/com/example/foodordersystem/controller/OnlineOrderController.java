@@ -26,9 +26,9 @@ public class OnlineOrderController {
     @FXML
     private TableColumn<Order, String> dateColumn;
     @FXML
-    private TableColumn<Order, Void> actionColumn; // New column for the button
+    private TableColumn<Order, Void> actionColumn;
 
-    private final OrderProductRepository orderRepository = new OrderProductRepository();
+    private final OrderProductRepository orderService = new OrderProductRepository();
 
     @FXML
     public void initialize() {
@@ -41,7 +41,7 @@ public class OnlineOrderController {
     }
 
     private void loadPendingOrders() {
-        List<Order> pendingOrders = orderRepository.getPendingOrders();
+        List<Order> pendingOrders = orderService.getPendingOrders();
         ObservableList<Order> orderList = FXCollections.observableArrayList(pendingOrders);
         orderTable.setItems(orderList);
     }
@@ -49,7 +49,6 @@ public class OnlineOrderController {
     private void addButtonToTable() {
         actionColumn.setCellFactory(param -> new TableCell<>() {
             private final Button detailsButton = new Button("View Details");
-
             {
                 detailsButton.setOnAction(event -> {
                     Order selectedOrder = getTableView().getItems().get(getIndex());
@@ -75,7 +74,7 @@ public class OnlineOrderController {
             Parent root = loader.load();
 
             OrderDetailsController controller = loader.getController();
-            controller.setOrderId(orderId);
+            controller.loadOrderDetails(orderId);
 
             Stage stage = new Stage();
             stage.setScene(new Scene(root));

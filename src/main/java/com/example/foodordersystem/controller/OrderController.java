@@ -93,6 +93,8 @@ public class OrderController {
     private AnchorPane notificationBar;
     @FXML
     private Button closeNotificationBtn;
+    @FXML
+    private Button minimizeButton;
 
     private final OrderRepository orderRepository = new OrderRepository();
     private BranchService branchService;
@@ -110,7 +112,17 @@ public class OrderController {
     }
 
     @FXML
+    private void minimizeWindow(ActionEvent event) {
+        Stage stage = (Stage) minimizeButton.getScene().getWindow();
+        stage.setIconified(true); // Minimize the window
+    }
+
+    @FXML
     public void initialize() {
+
+        if (minimizeButton == null) {
+            System.out.println("minimizeButton is NULL! Check FXML file.");
+        }
 
         populateBranchComboBox();
         productNameColumn1.setCellValueFactory(new PropertyValueFactory<>("productName"));
@@ -217,7 +229,6 @@ public class OrderController {
         notificationThread.setDaemon(true);
         notificationThread.start();
     }
-
 
     /**
      * Populates the branchComboBox with branch names retrieved from the branchService.
@@ -608,6 +619,7 @@ public class OrderController {
             showAlert("Error", "Selected branch is not valid.");
             return -1;
         }
+
         order.setBranchId(selectedBranch.getId());
 
         // Validate order date

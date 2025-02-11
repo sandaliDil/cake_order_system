@@ -15,7 +15,7 @@ public class OrderProductRepository {
 
     public List<Order> getPendingOrders() {
         List<Order> orders = new ArrayList<>();
-        String query = "SELECT * FROM Orders WHERE status = 0";  // status = 0 means incomplete orders
+        String query = "SELECT * FROM Orders  WHERE status = 0";  // status = 0 means incomplete orders
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -41,10 +41,10 @@ public class OrderProductRepository {
 
     public ObservableList<OrderProduct> getOrderDetails(int orderId) {
         ObservableList<OrderProduct> orderProducts = FXCollections.observableArrayList();
-        String query = "SELECT p.product_name AS productName, op.quantity " +
+        String query = "SELECT p.product_name AS productName, op.quantity, p.price " +
                 "FROM OrderItem op " +
                 "JOIN products p ON op.product_id = p.id " +
-                "WHERE op.order_id = ? ";  // Load only pending products
+                "WHERE op.order_id = ? ";
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
@@ -54,8 +54,8 @@ public class OrderProductRepository {
 
             while (resultSet.next()) {
                 OrderProduct orderProduct = new OrderProduct();
-//                orderProduct.setProductName(resultSet.getString("productName")); //  Corrected
-                orderProduct.setQuantity(resultSet.getDouble("quantity"));
+               // orderProduct.(resultSet.getString("productName"));
+                orderProduct.setQuantity(resultSet.getInt("quantity"));
                 orderProducts.add(orderProduct);
             }
         } catch (SQLException e) {

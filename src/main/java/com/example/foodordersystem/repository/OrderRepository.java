@@ -10,6 +10,8 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.*;
 
+import static com.example.foodordersystem.repository.OrderProductRepository.*;
+
 public class OrderRepository {
 
     /**
@@ -378,7 +380,7 @@ public class OrderRepository {
      * @return The order object if found, otherwise null.
      */
     public Order getOrderById(int orderId) {
-        String query = "SELECT o.id, o.user_id, u.userName, o.branch_id, o.order_date, o.option " +
+        String query = "SELECT o.id, o.user_id, u.userName, o.branch_id, o.order_date, o.option, o.status, o.time_range " +
                 "FROM Orders o JOIN users u ON o.user_id = u.id " +
                 "WHERE o.id = ?";
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
@@ -491,4 +493,31 @@ public class OrderRepository {
         return 0; // Return 0 if an error occurs
     }
 
+
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/productorder";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "admin";
+
+    public List<OrderProduct> getProductsByOrderId(int id) {
+        List<OrderProduct> products = new ArrayList<>();
+        String query = "SELECT * FROM order_product WHERE order_id = ?";
+
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setInt(1, id);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                products.add(new OrderProduct(
+                        resultSet.getInt("order_id"),
+                        resultSet.getDouble("quantity"),
+                        resultSet.getInt("product_id")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return products;
+    }
 }

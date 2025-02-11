@@ -1,45 +1,65 @@
 package com.example.foodordersystem.controller;
 
+import com.example.foodordersystem.model.Order;
 import com.example.foodordersystem.model.OrderProduct;
+import com.example.foodordersystem.model.Product;
 import com.example.foodordersystem.repository.OrderProductRepository;
+import com.example.foodordersystem.repository.OrderRepository;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+
+import java.util.List;
 
 public class OrderDetailsController {
 
-    public Label orderIdLabel;
+    @FXML
+    private Label orderIdLabel;
+    @FXML
+    private Label orderDateLabel;
+    @FXML
+    private Label orderOptionLabel;
     @FXML
     private TableView<OrderProduct> orderDetailsTable;
     @FXML
     private TableColumn<OrderProduct, String> productNameColumn;
     @FXML
-    private TableColumn<OrderProduct, Double> quantityColumn;
+    private TableColumn<OrderProduct, Integer> quantityColumn;
+    @FXML
+    private TableColumn<OrderProduct, Double> priceColumn;
 
+    private final OrderRepository orderRepository = new OrderRepository();
     private final OrderProductRepository orderProductRepository = new OrderProductRepository();
-    private int orderId;
 
-    public void setOrderId(int orderId) {
-        this.orderId = orderId;
-        loadOrderDetails();
+    public void loadOrderDetails(int orderId) {
+        Order order = orderRepository.getOrderById(orderId);
+        if (order != null) {
+            orderIdLabel.setText(String.valueOf(order.getId()));
+            orderDateLabel.setText(order.getOrderDate().toString());
+            orderOptionLabel.setText(order.getOption());
+
+            List<OrderProduct> orderProducts = orderProductRepository.getOrderDetails(orderId);
+            ObservableList<OrderProduct> orderProductList = FXCollections.observableArrayList(orderProducts);
+            orderDetailsTable.setItems(orderProductList);
+        }
     }
 
     @FXML
     public void initialize() {
-        if (orderDetailsTable == null) {
-            System.out.println("orderDetailsTable is NULL in initialize!");
-        } else {
-            productNameColumn.setCellValueFactory(new PropertyValueFactory<>("productName"));
-            quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
-        }
+        productNameColumn.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        quantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+    }
+    @FXML
+    private void printOrder() {
+        System.out.println("Printing order...");
     }
 
-
-    private void loadOrderDetails() {
-        ObservableList<OrderProduct> orderDetails = orderProductRepository.getOrderDetails(orderId);
-        orderDetailsTable.setItems(orderDetails);
+    @FXML
+    private void saveAndPrintOrder() {
+        System.out.println("Order saved and printed...");
     }
+
 }

@@ -1,42 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.foodordersystem.controller.OrderDetailsController">
-    <VBox spacing="10" prefWidth="500" prefHeight="400">
-
-        <Label text="Order Details" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
-
-        <HBox spacing="10">
+<?import javafx.scene.layout.HBox?>
+<AnchorPane fx:id="printProductDetails" cacheShape="false" centerShape="false" focusTraversable="true"
+            prefHeight="850.0" prefWidth="1369.0" scaleShape="false" style="-fx-background-color: FFFFFF;"
+            stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.foodordersystem.controller.OrderDetailsController">
+    <VBox spacing="10" padding="10 10 10 10">
+        <HBox spacing="20">
+            <Label text="Username:"/>
+            <Label fx:id="usernameLabel" text="User"/>
+        </HBox>
+        <HBox spacing="20">
+            <Label text="Branch:"/>
+            <ComboBox fx:id="branchComboBox"/>
+        </HBox>
+        <HBox spacing="20">
+            <Label text="Order Date:"/>
+            <DatePicker fx:id="orderDatePicker"/>
+        </HBox>
+        <HBox spacing="20">
+            <Label text="Search Order ID:"/>
+            <TextField fx:id="searchOrderIdField" promptText="Enter Order ID"/>
+        </HBox>
+        <HBox spacing="20">
             <Label text="Order ID:"/>
             <Label fx:id="orderIdLabel"/>
         </HBox>
-
-        <HBox spacing="10">
-            <Label text="Date:"/>
+        <HBox spacing="20">
+            <Label text="Order Date:"/>
             <Label fx:id="orderDateLabel"/>
         </HBox>
-
-        <HBox spacing="10">
-            <Label text="User:"/>
-            <Label fx:id="userNameLabel"/>
-        </HBox>
-
-        <HBox spacing="10">
+        <HBox spacing="20">
             <Label text="Order Option:"/>
             <Label fx:id="orderOptionLabel"/>
         </HBox>
 
-        <Label text="Ordered Products" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
-
-        <TableView fx:id="productTable">
+        <TableView fx:id="orderDetailsTable">
             <columns>
-                <TableColumn fx:id="productIdColumn" text="Product ID" prefWidth="150"/>
-                <TableColumn fx:id="quantityColumn" text="Quantity" prefWidth="150"/>
+                <TableColumn fx:id="productNameColumn" text="Product Name"/>
+                <TableColumn fx:id="quantityColumn" text="Quantity"/>
+                <TableColumn fx:id="priceColumn" text="Price"/>
             </columns>
         </TableView>
 
-<!--        <Button text="Close" onAction="#closeWindow"/>-->
+        <HBox spacing="20">
+            <Button text="Print Order" onAction="#printOrder"/>
+            <Button text="Save  Print Order" onAction="#saveAndPrintOrder"/>
+        </HBox>
     </VBox>
 </AnchorPane>
