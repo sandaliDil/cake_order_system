@@ -2,11 +2,7 @@ package com.example.foodordersystem.controller;
 
 import com.example.foodordersystem.Session;
 import com.example.foodordersystem.database.DatabaseConnection;
-import com.example.foodordersystem.model.Branch;
-import com.example.foodordersystem.model.Order;
-import com.example.foodordersystem.model.OrderProduct;
-import com.example.foodordersystem.model.Product;
-import com.example.foodordersystem.model.User;
+import com.example.foodordersystem.model.*;
 import com.example.foodordersystem.repository.OrderRepository;
 import com.example.foodordersystem.service.BranchService;
 import com.example.foodordersystem.service.OrderService;
@@ -29,6 +25,7 @@ import javafx.print.*;
 
 import javafx.print.Printer;
 import javafx.print.PrinterJob;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -38,6 +35,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -95,6 +93,7 @@ public class OrderController {
     private Button closeNotificationBtn;
     @FXML
     private Button minimizeButton;
+
 
     private final OrderRepository orderRepository = new OrderRepository();
     private BranchService branchService;
@@ -192,11 +191,36 @@ public class OrderController {
         Platform.runLater(() -> {
             if (pendingOrders > 0) {
                 notificationLabel.setText("🚀 Pending Orders: " + pendingOrders);
+                notificationLabel.setCursor(Cursor.HAND); // Change cursor to indicate clickable
                 showNotification();
+
+                // Add event handler to open OnlineOrders.fxml
+                notificationLabel.setOnMouseClicked(event -> openOnlineOrdersPage());
             } else {
                 hideNotification();
+                notificationLabel.setOnMouseClicked(null); // Remove click event if no pending orders
             }
         });
+    }
+
+    private void openOnlineOrdersPage() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/foodordersystem/OnlineOrders.fxml"));
+            Parent root = loader.load();
+
+            // Create a new Stage (window)
+            Stage onlineOrdersStage = new Stage();
+            onlineOrdersStage.setTitle("Online Orders");
+            onlineOrdersStage.setScene(new Scene(root));
+            onlineOrdersStage.initModality(Modality.WINDOW_MODAL); // Ensures it's a pop-up
+            onlineOrdersStage.initOwner(notificationLabel.getScene().getWindow()); // Set parent window
+            onlineOrdersStage.show();
+
+            System.out.println("OnlineOrders.fxml opened in a new window");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Error loading OnlineOrders.fxml");
+        }
     }
 
     private void showNotification() {
@@ -1494,4 +1518,74 @@ public class OrderController {
             e.printStackTrace();
         }
     }
+
+    public void loadOrderDetails(Order order) {
+        usernameLabel.setText(order.getUserName()); // Assuming `getUsername()` exists in Order
+        System.out.println(order.getUserName());
+        orderDatePicker.setValue(order.getOrderDate()); // Assuming it's a LocalDate
+        System.out.println(order.getOrderDate());
+        //branchComboBox.setValue(order.getBranchId()); // Assuming `getBranchName()` exists
+        loadProductsForOrder(order.getId()); // Load product details
+    }
+
+    public void loadProductsForOrder(int orderId) {
+        // Fetch order products
+        List<OrderProduct> orderProducts = orderRepository.getProductsForOrder(orderId);
+        for (OrderProduct op : orderProducts) {
+            System.out.println("Order ID: " + op.getOrderId() + ", Product ID: " + op.getProductId() + ", Quantity: " + op.getQuantity());
+        }
+
+        // Fetch all products
+        List<Product> allProducts = productService.getAllProducts();
+        System.out.println("All Products Retrieved: " + allProducts.size());
+
+        // Create a map linking product ID to quantity
+        Map<Integer, Double> productQuantityMap = orderProducts.stream()
+                .collect(Collectors.toMap(OrderProduct::getProductId, OrderProduct::getQuantity));
+
+        System.out.println("Product Quantity Map: " + productQuantityMap);
+
+        // Update product list with quantity from orderProducts
+        List<Product> updatedProducts = allProducts.stream()
+                .map(product -> {
+                    double quantity = productQuantityMap.getOrDefault(product.getId(), 0.0); // Default to 0.0 if not in order
+                    product.setQuantity(quantity);
+                    System.out.println("Updated Product: ID=" + product.getId() );
+                    return product;
+                })
+                .collect(Collectors.toList());
+
+        // Distribute products into three tables
+        ObservableList<Product> productList1 = FXCollections.observableArrayList();
+        ObservableList<Product> productList2 = FXCollections.observableArrayList();
+        ObservableList<Product> productList3 = FXCollections.observableArrayList();
+
+        int totalProducts = updatedProducts.size();
+        int productsPerTable = (int) Math.ceil((double) totalProducts / 3);
+
+        if (totalProducts > 0) {
+            productList1.addAll(updatedProducts.subList(0, Math.min(productsPerTable, totalProducts)));
+        }
+        if (totalProducts > productsPerTable) {
+            productList2.addAll(updatedProducts.subList(productsPerTable, Math.min(productsPerTable * 2, totalProducts)));
+        }
+        if (totalProducts > productsPerTable * 2) {
+            productList3.addAll(updatedProducts.subList(productsPerTable * 2, totalProducts));
+        }
+
+//        for (Product product : productTable1.getItems()) {
+//            TextField quantityField = new TextField();
+//            productQuantityMap.put(product.getId(), quantityField);
+//
+//            // Add event listener to update totalQuantity dynamically
+//            quantityField.textProperty().addListener((observable, oldValue,
+//                                                      newValue) -> updateTotalQuantity());
+//        }
+
+        // Set the product lists to the tables
+        productTable1.setItems(productList1);
+        productTable2.setItems(productList2);
+        productTable3.setItems(productList3);
+    }
+
 }

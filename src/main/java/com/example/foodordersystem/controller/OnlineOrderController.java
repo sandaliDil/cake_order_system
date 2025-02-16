@@ -7,7 +7,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
@@ -47,42 +46,39 @@ public class OnlineOrderController {
     }
 
     private void addButtonToTable() {
-        actionColumn.setCellFactory(param -> new TableCell<>() {
+        actionColumn.setCellFactory(param -> new TableCell<Order, Void>() {
             private final Button detailsButton = new Button("View Details");
+
             {
                 detailsButton.setOnAction(event -> {
                     Order selectedOrder = getTableView().getItems().get(getIndex());
-                    openOrderDetailsPage(selectedOrder.getId());
+                    openOrderDetailsPage(selectedOrder, detailsButton); // Pass the button to fix error
                 });
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(detailsButton);
-                }
+                setGraphic(empty ? null : detailsButton);
             }
         });
     }
 
-    private void openOrderDetailsPage(int orderId) {
+    private void openOrderDetailsPage(Order order, Button sourceButton) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/foodordersystem/OrderDetails.fxml"));
             Parent root = loader.load();
 
             OrderDetailsController controller = loader.getController();
-            controller.loadOrderDetails(orderId);
+            controller.loadOrderDetails(order);
 
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Order Details");
-            stage.show();
+            Stage stage = (Stage) sourceButton.getScene().getWindow();
+            stage.getScene().setRoot(root);
         } catch (IOException e) {
+
             e.printStackTrace();
         }
     }
+
 
 }

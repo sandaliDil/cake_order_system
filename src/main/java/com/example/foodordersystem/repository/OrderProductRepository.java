@@ -8,14 +8,16 @@ import javafx.collections.ObservableList;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OrderProductRepository {
 
 
     public List<Order> getPendingOrders() {
         List<Order> orders = new ArrayList<>();
-        String query = "SELECT * FROM Orders  WHERE status = 0";  // status = 0 means incomplete orders
+        String query = "SELECT * FROM Orders WHERE status = 0";  // status = 0 means incomplete orders
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -30,6 +32,8 @@ public class OrderProductRepository {
                 order.setOption(resultSet.getString("option"));
                 order.setStatus(resultSet.getBoolean("status"));
 
+                // Fetch order items separately
+
                 orders.add(order);
             }
         } catch (Exception e) {
@@ -37,6 +41,37 @@ public class OrderProductRepository {
         }
 
         return orders;
+    }
+
+    // Method to fetch order items for a given order ID
+    private List<Map<String, Object>> getOrderProducts(int orderId, Connection connection) {
+        List<Map<String, Object>> orderProducts = new ArrayList<>();
+
+        String query = "SELECT op.id, op.order_id, op.product_id, op.quantity, op.price, p.product_name " +
+                "FROM OrderItem op " +
+                "JOIN Product p ON op.product_id = p.id " +
+                "WHERE op.order_id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, orderId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    Map<String, Object> orderProduct = new HashMap<>();
+                    orderProduct.put("id", resultSet.getInt("id"));
+                    orderProduct.put("order_id", resultSet.getInt("order_id"));
+                    orderProduct.put("product_id", resultSet.getInt("product_id"));
+                    orderProduct.put("quantity", resultSet.getDouble("quantity"));
+                    orderProduct.put("price", resultSet.getDouble("price"));
+                    orderProduct.put("product_name", resultSet.getString("product_name")); // Store product name
+
+                    orderProducts.add(orderProduct);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return orderProducts;
     }
 
     public ObservableList<OrderProduct> getOrderDetails(int orderId) {

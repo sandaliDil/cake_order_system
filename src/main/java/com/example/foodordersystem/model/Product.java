@@ -59,4 +59,8 @@ public class Product {
     public BooleanProperty selectedProperty() {
         return selected;
     }
+
+
+    public void setQuantity(Double aDouble) {
+    }
 }

@@ -520,4 +520,29 @@ public class OrderRepository {
         }
         return products;
     }
+
+    public List<OrderProduct> getProductsForOrder(int orderId) {
+        List<OrderProduct> orderProducts = new ArrayList<>();
+        String query = "SELECT p.id, p.product_name, op.quantity FROM OrderItem op " +
+                "JOIN products p ON op.product_id = p.id WHERE op.order_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, orderId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int productId = rs.getInt("id");
+                double quantity = rs.getDouble("quantity");
+
+                OrderProduct orderProduct = new OrderProduct(orderId, quantity, productId);
+                orderProducts.add(orderProduct);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return orderProducts;
+    }
+
 }

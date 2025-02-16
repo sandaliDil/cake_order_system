@@ -7,7 +7,6 @@ import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.print.*;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.skin.TableHeaderRow;
 import javafx.scene.layout.VBox;
@@ -34,7 +33,6 @@ public class BillGenerateController {
     private List<Map<String, String>> allData = new ArrayList<>(); // Store all the data
 
     private static final int PAGE_SIZE = 14; // Number of rows per page
-
 
     @FXML
     private void onFilterButtonClick() {
@@ -90,7 +88,6 @@ public class BillGenerateController {
 
         // Initialize pagination
         initializePagination();
-
         addPrintButtonColumn();
         addPrintButtonColumn3();
     }
