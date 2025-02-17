@@ -7,13 +7,11 @@ import com.example.foodordersystem.service.BranchService;
 import com.example.foodordersystem.service.OrderService;
 import com.example.foodordersystem.service.ProductService;
 
-import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -24,25 +22,17 @@ import javafx.print.*;
 
 import javafx.print.Printer;
 import javafx.print.PrinterJob;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -76,7 +66,6 @@ public class OrderDetailsController {
     private CheckBox checkbox2;
     @FXML
     private CheckBox checkbox3;
-
     @FXML
     private ComboBox<String> printerComboBox;
     @FXML
@@ -102,8 +91,6 @@ public class OrderDetailsController {
 
     @FXML
     public void initialize() {
-
-
 
         populateBranchComboBox();
         productNameColumn1.setCellValueFactory(new PropertyValueFactory<>("productName"));
@@ -147,7 +134,6 @@ public class OrderDetailsController {
         });
 
     }
-
 
     /**
      * Populates the branchComboBox with branch names retrieved from the branchService.
@@ -504,7 +490,6 @@ public class OrderDetailsController {
         });
         return checkboxColumn;
     }
-
 
     /**
      * Saves the order after validating user inputs and capturing all relevant order details.
@@ -1140,9 +1125,6 @@ public class OrderDetailsController {
             double quantity = getQuantityFromCell(product);
             totalQuantityFirst6 += quantity;
 
-
-
-
             firstPageContent.append("<tr>")
                     .append("<td>").append(product.getProductName()).append("</td>")
                     .append("<td class='qty'>").append(formatQuantity(quantity));
@@ -1194,8 +1176,6 @@ public class OrderDetailsController {
                 .append("</body>")
                 .append("</html>");
 
-
-
         Platform.runLater(() -> {
             // Get selected printer from ComboBox
             String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
@@ -1228,22 +1208,13 @@ public class OrderDetailsController {
                 System.out.println("No printer selected.");
             }
         });
-
     }
-
-    /**
-     * Handles the "Save and Print Order" action.
-     */
     @FXML
     private void saveAndPrintOrder(ActionEvent event) {
-
         int orderId = saveOrder(event);
-
-        // Print the order summary after saving
         printOrderSummary(orderId);
 
     }
-
 
     @FXML
     private void printOrder(ActionEvent event) {
@@ -1254,9 +1225,7 @@ public class OrderDetailsController {
     private void printOrder2(ActionEvent event) {
         printOrderSummary3();
     }
-
-
-
+    
     @FXML
     private void logout(ActionEvent event) {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -1299,48 +1268,6 @@ public class OrderDetailsController {
         clearCheckboxes(productTable2);
         clearCheckboxes(productTable3);
 
-    }
-
-    /**
-     * Handles the action when the "Order Summary" button is clicked.
-     */
-    @FXML
-    private void orderSummaryButtonClick() {
-        try {
-            // Load the TotalSummary.fxml file
-            FXMLLoader loader = new FXMLLoader(getClass().getResource
-                    ("/com/example/foodordersystem/TotalSummary.fxml"));
-            Parent root = loader.load();
-
-            // Create a new stage (window) to show the TotalSummary page
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void searchOrderButton(ActionEvent actionEvent) {
-    }
-
-    public void updateButtonClick(ActionEvent actionEvent) {
-
-        try {
-            // Load the TotalSummary.fxml file
-            FXMLLoader loader = new FXMLLoader(getClass().getResource
-                    ("/com/example/foodordersystem/OrderSummery.fxml"));
-            Parent root = loader.load();
-
-            // Create a new stage (window) to show the TotalSummary page
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.show();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public void loadOrderDetails(Order order) {

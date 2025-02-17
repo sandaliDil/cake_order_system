@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane fx:id="printProductDetails" cacheShape="false" centerShape="false" focusTraversable="true" prefHeight="850.0" prefWidth="1369.0" scaleShape="false" style="-fx-background-color: FFFFFF;" stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.foodordersystem.controller.OrderDetailsController">
+<AnchorPane fx:id="printProductDetails" cacheShape="false" centerShape="false" focusTraversable="true" prefHeight="850.0" prefWidth="1287.0" scaleShape="false" style="-fx-background-color: FFFFFF;" stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.foodordersystem.controller.OrderDetailsController">
     <children>
         <Label layoutX="556.0" layoutY="64.0" prefHeight="32.0" prefWidth="85.0" text="Date     :">
             <font>
@@ -27,7 +27,7 @@
                 <Font size="22.0" />
             </font>
         </Label>
-        <ImageView fitHeight="217.0" fitWidth="246.0" layoutX="1142.0" layoutY="573.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="-21.0">
+        <ImageView fitHeight="217.0" fitWidth="246.0" layoutX="1142.0" layoutY="573.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="0.0">
             <image>
                 <Image url="@image/4.png" />
             </image>
@@ -57,14 +57,14 @@
                 <Image url="@image/logo.png" />
             </image>
         </ImageView>
-        <Button fx:id="printOrderSummary" layoutX="1146.0" layoutY="221.0" mnemonicParsing="false" onAction="#printOrder" prefHeight="46.0" prefWidth="196.0" style="-fx-background-color: #27b786; -fx-background-radius: 5px;" text="Print" AnchorPane.leftAnchor="1100.0" AnchorPane.rightAnchor="29.0">
+        <Button fx:id="printOrderSummary" layoutX="1159.0" layoutY="240.0" mnemonicParsing="false" onAction="#printOrder" prefHeight="46.0" prefWidth="196.0" style="-fx-background-color: #27b786; -fx-background-radius: 5px;" text="Print" AnchorPane.leftAnchor="1139.0" AnchorPane.rightAnchor="5.0">
             <cursor>
                 <Cursor fx:constant="HAND" />
             </cursor>
             <font>
                 <Font name="System Bold" size="18.0" />
             </font></Button>
-        <Button fx:id="saveOrder" layoutX="1146.0" layoutY="275.0" mnemonicParsing="false" onAction="#printOrder2" prefHeight="46.0" prefWidth="196.0" style="-fx-background-color: #27b786;" text="Print(2)" AnchorPane.leftAnchor="1100.0" AnchorPane.rightAnchor="29.0">
+        <Button fx:id="saveOrder" layoutX="1139.0" layoutY="294.0" mnemonicParsing="false" onAction="#printOrder2" prefHeight="46.0" prefWidth="168.0" style="-fx-background-color: #27b786;" text="Print(2)" AnchorPane.leftAnchor="1139.0" AnchorPane.rightAnchor="5.0">
             <cursor>
                 <Cursor fx:constant="HAND" />
             </cursor>
@@ -90,7 +90,7 @@
                 <Font name="System Bold" size="18.0" />
             </font>
         </Button>
-        <Button layoutX="1146.0" layoutY="491.0" mnemonicParsing="false" onAction="#logout" prefHeight="46.0" prefWidth="196.0" style="-fx-background-color: #27b786;" text="LogOut" AnchorPane.leftAnchor="1100.0" AnchorPane.rightAnchor="29.0">
+        <Button layoutX="1190.0" layoutY="354.0" mnemonicParsing="false" onAction="#logout" prefHeight="46.0" prefWidth="182.0" style="-fx-background-color: #27b786;" text="LogOut" AnchorPane.leftAnchor="1139.0" AnchorPane.rightAnchor="5.0">
             <cursor>
                 <Cursor fx:constant="HAND" />
             </cursor>
@@ -110,18 +110,8 @@
             <font>
                 <Font name="Arial Bold" size="15.0" />
             </font></CheckBox>
-        <Button fx:id="connectButton" layoutX="1146.0" layoutY="382.0" mnemonicParsing="false" onAction="#orderSummaryButtonClick" prefHeight="46.0" prefWidth="204.0" style="-fx-background-color: #27b786;" text="Report" AnchorPane.leftAnchor="1100.0" AnchorPane.rightAnchor="29.0">
-            <font>
-                <Font name="System Bold" size="19.0" />
-            </font>
-            <cursor>
-                <Cursor fx:constant="HAND" />
-            </cursor>
-        </Button>
         <ComboBox fx:id="printerComboBox" layoutX="911.0" layoutY="66.0" prefHeight="37.0" prefWidth="168.0" promptText="Select Printer" />
         <Accordion />
-        <TextField fx:id="searchOrderIdField" layoutX="1125.0" layoutY="174.0" prefHeight="40.0" prefWidth="118.0" />
-        <Button fx:id="searchOrderButton" layoutX="1250.0" layoutY="173.0" mnemonicParsing="false" onAction="#searchOrderButton" prefHeight="37.0" prefWidth="71.0" text="Search" />
         <Label fx:id="totalQuantityLabel" layoutX="1119.0" layoutY="545.0" prefHeight="93.0" prefWidth="212.0" textFill="#054620">
             <font>
                 <Font name="System Bold" size="29.0" />
@@ -136,12 +126,12 @@
                 <Font name="System Bold" size="18.0" />
             </font>
         </Button>
-        <TextField layoutX="-4.0" layoutY="1.0" prefHeight="39.0" prefWidth="1368.0" promptText="Wsana Bakers " style="-fx-background-color: #27b786;" text="                                                                                                           Wasana Bakers (PVT) LTD                                     ">
+        <TextField layoutX="-4.0" layoutY="1.0" prefHeight="39.0" prefWidth="1368.0" promptText="Wsana Bakers " style="-fx-background-color: #27b786;" text="                                                                                                           Wasana Bakers (PVT) LTD                                     " AnchorPane.rightAnchor="0.0">
             <font>
                 <Font name="System Bold" size="18.0" />
             </font>
         </TextField>
-        <ImageView fitHeight="37.0" fitWidth="37.0" layoutX="1139.0" layoutY="497.0" pickOnBounds="true" preserveRatio="true">
+        <ImageView fitHeight="37.0" fitWidth="37.0" layoutX="1167.0" layoutY="359.0" pickOnBounds="true" preserveRatio="true">
             <image>
                 <Image url="@image/user.png" />
             </image>
@@ -153,29 +143,6 @@
 
         </ImageView>
         <Accordion />
-        <Button fx:id="connectButton2" layoutX="1126.0" layoutY="329.0" mnemonicParsing="false" onAction="#updateButtonClick" prefHeight="46.0" prefWidth="196.0" style="-fx-background-color: #27b786;" text="Update" AnchorPane.leftAnchor="1100.0" AnchorPane.rightAnchor="29.0">
-            <font>
-                <Font name="System Bold" size="19.0" />
-            </font>
-            <cursor>
-                <Cursor fx:constant="HAND" />
-            </cursor>
-        </Button>
-        <ImageView fitHeight="37.0" fitWidth="40.0" layoutX="1139.0" layoutY="334.0" pickOnBounds="true" preserveRatio="true">
-            <image>
-                <Image url="@image/refresh.png" />
-            </image>
-        </ImageView>
-        <ImageView fitHeight="37.0" fitWidth="40.0" layoutX="1139.0" layoutY="387.0" pickOnBounds="true" preserveRatio="true">
-            <image>
-                <Image url="@image/document.png" />
-            </image>
-        </ImageView>
-        <ImageView fitHeight="37.0" fitWidth="30.0" layoutX="1124.0" layoutY="443.0" pickOnBounds="true" preserveRatio="true">
-            <image>
-                <Image url="@image/paper.png" />
-            </image>
-        </ImageView>
         <AnchorPane fx:id="notificationBar" layoutX="0" layoutY="0" prefHeight="50" prefWidth="310" style="-fx-background-color: #ff5733; -fx-padding: 10px; -fx-border-radius: 10px; -fx-background-radius: 10px;" visible="false">
             <Label fx:id="notificationLabel" layoutX="10" layoutY="10" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" text="Pending Orders: 0" />
             <Button fx:id="closeNotificationBtn" layoutX="300" layoutY="10" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-weight: bold;" text="X" />
