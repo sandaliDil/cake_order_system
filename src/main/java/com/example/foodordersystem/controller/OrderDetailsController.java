@@ -9,6 +9,7 @@ import com.example.foodordersystem.service.ProductService;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -27,11 +28,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
@@ -67,9 +70,13 @@ public class OrderDetailsController {
     @FXML
     private CheckBox checkbox3;
     @FXML
+    private TextField orderIdTextField;
+    @FXML
     private ComboBox<String> printerComboBox;
     @FXML
     private Label totalQuantityLabel;
+    @FXML private TableColumn<Product, Double> quantityColumn;
+
 
 
     private final OrderRepository orderRepository = new OrderRepository();
@@ -103,7 +110,7 @@ public class OrderDetailsController {
         TableColumn<Product, String> quantityColumn = createQuantityColumn();
         tableView.getColumns().add(quantityColumn);
         tableView.setRowFactory(tv -> new TableRow<>());
-        loadProducts();
+//        loadProducts();
         orderDatePicker.setValue(LocalDate.now());
         branchComboBox.requestFocus();
 
@@ -184,48 +191,48 @@ public class OrderDetailsController {
     /**
      * Loads products into three separate tables (productTable1, productTable2, and productTable3).
      */
-    private void loadProducts() {
-        List<Product> allProducts = productService.getAllProducts();
-
-        ObservableList<Product> productList1 = FXCollections.observableArrayList();
-        ObservableList<Product> productList2 = FXCollections.observableArrayList();
-        ObservableList<Product> productList3 = FXCollections.observableArrayList();
-
-        int totalProducts = allProducts.size();
-        int productsPerTable = 10;
-
-        // Distribute the products across the three tables
-        if (totalProducts > 0) {
-            productList1.addAll(allProducts.subList(0, Math.min(productsPerTable, totalProducts)));
-        }
-        if (totalProducts > productsPerTable) {
-            productList2.addAll(allProducts.subList(productsPerTable, Math.min(productsPerTable * 2, totalProducts)));
-        }
-        if (totalProducts > productsPerTable * 2) {
-            productList3.addAll(allProducts.subList(productsPerTable * 2, Math.min(productsPerTable * 3,
-                    totalProducts)));
-        }
-
-        // Set the items for each table
-        productTable1.setItems(productList1);
-        productTable2.setItems(productList2);
-        productTable3.setItems(productList3);
-
-        // Create quantity columns
-        TableColumn<Product, String> quantityColumn1 = createQuantityColumn();
-        TableColumn<Product, String> quantityColumn2 = createQuantityColumn();
-        TableColumn<Product, String> quantityColumn3 = createQuantityColumn();
-
-        // Create checkbox columns
-        TableColumn<Product, Boolean> checkboxColumn1 = createCheckboxColumn();
-        TableColumn<Product, Boolean> checkboxColumn2 = createCheckboxColumn();
-        TableColumn<Product, Boolean> checkboxColumn3 = createCheckboxColumn();
-
-        // Add the columns to the tables
-        productTable1.getColumns().addAll(checkboxColumn1, quantityColumn1);
-        productTable2.getColumns().addAll(checkboxColumn2, quantityColumn2);
-        productTable3.getColumns().addAll(checkboxColumn3, quantityColumn3);
-    }
+//    private void loadProducts() {
+//        List<Product> allProducts = productService.getAllProducts();
+//
+//        ObservableList<Product> productList1 = FXCollections.observableArrayList();
+//        ObservableList<Product> productList2 = FXCollections.observableArrayList();
+//        ObservableList<Product> productList3 = FXCollections.observableArrayList();
+//
+//        int totalProducts = allProducts.size();
+//        int productsPerTable = 10;
+//
+//        // Distribute the products across the three tables
+//        if (totalProducts > 0) {
+//            productList1.addAll(allProducts.subList(0, Math.min(productsPerTable, totalProducts)));
+//        }
+//        if (totalProducts > productsPerTable) {
+//            productList2.addAll(allProducts.subList(productsPerTable, Math.min(productsPerTable * 2, totalProducts)));
+//        }
+//        if (totalProducts > productsPerTable * 2) {
+//            productList3.addAll(allProducts.subList(productsPerTable * 2, Math.min(productsPerTable * 3,
+//                    totalProducts)));
+//        }
+//
+//        // Set the items for each table
+//        productTable1.setItems(productList1);
+//        productTable2.setItems(productList2);
+//        productTable3.setItems(productList3);
+//
+//        // Create quantity columns
+//        TableColumn<Product, String> quantityColumn1 = createQuantityColumn();
+//        TableColumn<Product, String> quantityColumn2 = createQuantityColumn();
+//        TableColumn<Product, String> quantityColumn3 = createQuantityColumn();
+//
+//        // Create checkbox columns
+//        TableColumn<Product, Boolean> checkboxColumn1 = createCheckboxColumn();
+//        TableColumn<Product, Boolean> checkboxColumn2 = createCheckboxColumn();
+//        TableColumn<Product, Boolean> checkboxColumn3 = createCheckboxColumn();
+//
+//        // Add the columns to the tables
+//        productTable1.getColumns().addAll(checkboxColumn1, quantityColumn1);
+//        productTable2.getColumns().addAll(checkboxColumn2, quantityColumn2);
+//        productTable3.getColumns().addAll(checkboxColumn3, quantityColumn3);
+//    }
 
     private void clearCheckboxes(TableView<Product> table) {
         for (Product product : table.getItems()) {
@@ -446,7 +453,6 @@ public class OrderDetailsController {
         return null;
     }
 
-
     private TableColumn<Product, Boolean> createCheckboxColumn() {
         TableColumn<Product, Boolean> checkboxColumn = new TableColumn<>("");
 
@@ -491,22 +497,33 @@ public class OrderDetailsController {
         return checkboxColumn;
     }
 
-    /**
-     * Saves the order after validating user inputs and capturing all relevant order details.
-     */
+    private Order getSelectedOrder() {
+        return tableView.getSelectionModel().getSelectedItem();
+    }
+
     @FXML
-    private int saveOrder(ActionEvent event) {
+    private boolean updateOrder(ActionEvent event) {
         String username = usernameLabel.getText();
         System.out.println("Username: " + username);
 
         User loggedInUser = Session.getInstance().getLoggedInUser();
         if (loggedInUser == null) {
             System.out.println("No user is logged in.");
-            showAlert("Error", "Please log in to place an order.");
-            return -1;
+            showAlert("Error", "Please log in to update the order.");
+            return false;
         }
 
-        Order order = new Order();
+        Order order = getSelectedOrder(); // Assume this method retrieves the selected order
+
+        if (order == null) {
+            showAlert("Error", "No order selected for update.");
+            return false;
+        }
+
+        // Get Order ID
+        int orderId = order.getId();
+        System.out.println("Updating Order ID: " + orderId);
+
         order.setUserId(loggedInUser.getId());
 
         // Validate branch selection
@@ -514,14 +531,14 @@ public class OrderDetailsController {
         if (selectedBranchName == null) {
             System.out.println("Branch is not selected.");
             showAlert("Error", "Please select a branch.");
-            return -1;
+            return false;
         }
 
         Branch selectedBranch = getBranchByName(selectedBranchName);
         if (selectedBranch == null) {
             System.out.println("Branch not found.");
             showAlert("Error", "Selected branch is not valid.");
-            return -1;
+            return false;
         }
 
         order.setBranchId(selectedBranch.getId());
@@ -530,7 +547,7 @@ public class OrderDetailsController {
         if (orderDatePicker.getValue() == null) {
             System.out.println("Order date is not selected.");
             showAlert("Error", "Please select an order date.");
-            return -1;
+            return false;
         }
         order.setOrderDate(orderDatePicker.getValue().atStartOfDay());
 
@@ -545,29 +562,32 @@ public class OrderDetailsController {
         }
         order.setOption(selectedOption);
 
-        // Validate and add order products
+        // Validate and update order products
         List<OrderProduct> orderProducts = new ArrayList<>();
         if (!addOrderProductsFromTable(productTable1, orderProducts) ||
                 !addOrderProductsFromTable(productTable2, orderProducts) ||
                 !addOrderProductsFromTable(productTable3, orderProducts)) {
             System.out.println("Invalid quantity in order.");
             showAlert("Error", "Please enter valid quantities for all products.");
-            return -1;
+            return false;
         }
 
         order.setItems(orderProducts);
         order.setStatus(true);
 
-        // Save the order
-        int orderId = orderService.saveOrder(order);
+        // Call the method to load order details (Optional)
+        loadOrderDetails(order);
 
-        if (orderId != -1) {
-            System.out.println("Order saved successfully with ID: " + orderId);
-            showAlert("Success", "Order saved successfully. Order ID: " + orderId);
-            return orderId;
+        // Update the order
+        boolean isUpdated = orderService.updateOrder(order);
+
+        if (isUpdated) {
+            System.out.println("Order updated successfully.");
+            showAlert("Success", "Order updated successfully.");
+            return true;
         } else {
-            showAlert("Error", "Failed to save the order. Please try again.");
-            return -1;
+            showAlert("Error", "Failed to update the order. Please try again.");
+            return false;
         }
     }
 
@@ -624,11 +644,12 @@ public class OrderDetailsController {
      * Generates and prints an order summary with detailed product information across two pages.
      */
     @FXML
-    private void printOrderSummary(int orderId) {
+    private void printOrderSummary(boolean orderId) {
         StringBuilder firstPageContent = new StringBuilder();
         StringBuilder secondPageContent = new StringBuilder();
 
         // Get user details
+        String OrderId = orderIdTextField.getText();
         String username = usernameLabel.getText();
         String orderDate = orderDatePicker.getValue().toString();
         String selectedBranchName = branchComboBox.getValue();
@@ -678,8 +699,8 @@ public class OrderDetailsController {
             totalQuantityFirst6 += quantity;
 
             firstPageContent.append("<tr>")
-                    .append("<td>").append(product.getProductName()).append("</td>")
-                    .append("<td class='qty'>").append(formatQuantity(quantity));
+                    .append("<td>").append(product.getProductName()).append("</td>");
+            firstPageContent.append("<td class='qty'>").append(formatQuantity(getQuantityFromCell(product)));
             if (product.isSelected()) {
                 firstPageContent.append("(Order)");
             }
@@ -702,8 +723,8 @@ public class OrderDetailsController {
                 double quantity = getQuantityFromCell(product);
 
                 firstPageContent.append("<tr>")
-                        .append("<td>").append(product.getProductName()).append("</td>")
-                        .append("<td class='qty'>").append(formatQuantity(quantity));
+                        .append("<td>").append(product.getProductName()).append("</td>");
+                firstPageContent.append("<td class='qty'>").append(formatQuantity(getQuantityFromCell(product)));
 
                 // Add "Kg" for the first product on the second page and "Order" if selected
                 if (i == 7 && quantity > 0) {
@@ -775,7 +796,7 @@ public class OrderDetailsController {
                     }
                     secondPageContent.append("</td>");
                 } else {
-                    secondPageContent.append("<td class='qty'>").append(formatQuantity(quantity));
+                    secondPageContent.append("<td class='qty'>").append(formatQuantity(getQuantityFromCell(product)));
                     if (product.isSelected()) {
                         secondPageContent.append("(Order)");
                     }
@@ -820,7 +841,6 @@ public class OrderDetailsController {
                 System.out.println("No printer selected.");
             }
         });
-
     }
 
     private void printHTML1(String secondPageContent, ComboBox<String> printerComboBox) {
@@ -879,7 +899,6 @@ public class OrderDetailsController {
         });
     }
 
-
     private void printHTML(String firstPageContent, int pageCount, ComboBox<String> printerComboBox) {
 
         WebView webView = new WebView();
@@ -919,7 +938,6 @@ public class OrderDetailsController {
                     PrinterJob printerJob = PrinterJob.createPrinterJob(printer);
                     if (printerJob != null) {
 
-                        // Set default page size and orientation
                         PageLayout pageLayout = printer.createPageLayout(
                                 Paper.A4, PageOrientation.PORTRAIT, 10, 10, 10, 10
                         );
@@ -958,10 +976,9 @@ public class OrderDetailsController {
         }
     }
 
-
     @FXML
     private void printOrderSummary2() {
-        StringBuilder firstPageContent = new StringBuilder();
+
         StringBuilder secondPageContent = new StringBuilder();
 
         // Get user details
@@ -1209,11 +1226,11 @@ public class OrderDetailsController {
             }
         });
     }
+
     @FXML
     private void saveAndPrintOrder(ActionEvent event) {
-        int orderId = saveOrder(event);
+        boolean orderId = updateOrder(event);
         printOrderSummary(orderId);
-
     }
 
     @FXML
@@ -1225,7 +1242,7 @@ public class OrderDetailsController {
     private void printOrder2(ActionEvent event) {
         printOrderSummary3();
     }
-    
+
     @FXML
     private void logout(ActionEvent event) {
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -1271,72 +1288,80 @@ public class OrderDetailsController {
     }
 
     public void loadOrderDetails(Order order) {
-        usernameLabel.setText(order.getUserName()); // Assuming `getUsername()` exists in Order
+        usernameLabel.setText(order.getUserName() +" online"); // Assuming `getUsername()` exists in Order
         System.out.println(order.getUserName());
         orderDatePicker.setValue(order.getOrderDate()); // Assuming it's a LocalDate
         System.out.println(order.getOrderDate());
-        //branchComboBox.setValue(order.getBranchId()); // Assuming `getBranchName()` exists
-        loadProductsForOrder(order.getId()); // Load product details
+         loadProductsForOrder(order.getId()); // Load product details
+
     }
 
-    public void loadProductsForOrder(int orderId) {
-        // Fetch order products
-        List<OrderProduct> orderProducts = orderRepository.getProductsForOrder(orderId);
-        for (OrderProduct op : orderProducts) {
-            System.out.println("Order ID: " + op.getOrderId() + ", Product ID: " + op.getProductId() + ", Quantity: " + op.getQuantity());
-        }
-
-        // Fetch all products
+    private void loadProductsForOrder(int orderId) {
         List<Product> allProducts = productService.getAllProducts();
-        System.out.println("All Products Retrieved: " + allProducts.size());
 
-        // Create a map linking product ID to quantity
+        orderIdTextField.setText(String.valueOf(orderId));
+
+        List<OrderProduct> orderProducts = orderRepository.getProductsForOrder(orderId);
+        System.out.println(orderId);
         Map<Integer, Double> productQuantityMap = orderProducts.stream()
                 .collect(Collectors.toMap(OrderProduct::getProductId, OrderProduct::getQuantity));
 
-        System.out.println("Product Quantity Map: " + productQuantityMap);
-
-        // Update product list with quantity from orderProducts
-        List<Product> updatedProducts = allProducts.stream()
-                .map(product -> {
-                    double quantity = productQuantityMap.getOrDefault(product.getId(), 0.0); // Default to 0.0 if not in order
-                    product.setQuantity(quantity);
-                    System.out.println("Updated Product: ID=" + product.getId() );
-                    return product;
-                })
-                .collect(Collectors.toList());
-
-        // Distribute products into three tables
         ObservableList<Product> productList1 = FXCollections.observableArrayList();
         ObservableList<Product> productList2 = FXCollections.observableArrayList();
         ObservableList<Product> productList3 = FXCollections.observableArrayList();
 
-        int totalProducts = updatedProducts.size();
-        int productsPerTable = (int) Math.ceil((double) totalProducts / 3);
+        int totalProducts = allProducts.size();
+        int productsPerTable = 14;
 
+        // Distribute the products across the three tables
         if (totalProducts > 0) {
-            productList1.addAll(updatedProducts.subList(0, Math.min(productsPerTable, totalProducts)));
+            productList1.addAll(allProducts.subList(0, Math.min(productsPerTable, totalProducts)));
         }
         if (totalProducts > productsPerTable) {
-            productList2.addAll(updatedProducts.subList(productsPerTable, Math.min(productsPerTable * 2, totalProducts)));
+            productList2.addAll(allProducts.subList(productsPerTable, Math.min(productsPerTable * 2, totalProducts)));
         }
         if (totalProducts > productsPerTable * 2) {
-            productList3.addAll(updatedProducts.subList(productsPerTable * 2, totalProducts));
+            productList3.addAll(allProducts.subList(productsPerTable * 2, Math.min(productsPerTable * 3, totalProducts)));
         }
 
-//        for (Product product : productTable1.getItems()) {
-//            TextField quantityField = new TextField();
-//            productQuantityMap.put(product.getId(), quantityField);
-//
-//            // Add event listener to update totalQuantity dynamically
-//            quantityField.textProperty().addListener((observable, oldValue,
-//                                                      newValue) -> updateTotalQuantity());
-//        }
-
-        // Set the product lists to the tables
+        // Set the items for each table
         productTable1.setItems(productList1);
         productTable2.setItems(productList2);
         productTable3.setItems(productList3);
+
+        // Create quantity columns
+        TableColumn<Product, String> quantityColumn1 = createQuantityColumn(productQuantityMap);
+        TableColumn<Product, String> quantityColumn2 = createQuantityColumn(productQuantityMap);
+        TableColumn<Product, String> quantityColumn3 = createQuantityColumn(productQuantityMap);
+
+        // Create checkbox columns
+        TableColumn<Product, Boolean> checkboxColumn1 = createCheckboxColumn();
+        TableColumn<Product, Boolean> checkboxColumn2 = createCheckboxColumn();
+        TableColumn<Product, Boolean> checkboxColumn3 = createCheckboxColumn();
+
+        // Add the columns to the tables
+        productTable1.getColumns().addAll(checkboxColumn1, quantityColumn1);
+        productTable2.getColumns().addAll(checkboxColumn2, quantityColumn2);
+        productTable3.getColumns().addAll(checkboxColumn3, quantityColumn3);
     }
 
+    private TableColumn<Product, String> createQuantityColumn(Map<Integer, Double> productQuantityMap) {
+        TableColumn<Product, String> quantityField = new TableColumn<>("Quantity");
+
+
+        quantityField.setCellValueFactory(cellData -> {
+            Product product = cellData.getValue();
+            double quantity = productQuantityMap.getOrDefault(product.getId(), 0.0);
+            return new SimpleStringProperty(String.valueOf(quantity));
+        });
+
+        quantityField.setCellFactory(TextFieldTableCell.forTableColumn());
+        quantityField.setOnEditCommit(event -> {
+            Product product = event.getRowValue();
+            double newQuantity = Double.parseDouble(event.getNewValue());
+            productQuantityMap.put(product.getId(), newQuantity); // Update the map with new quantity
+        });
+
+        return quantityField;
+    }
 }

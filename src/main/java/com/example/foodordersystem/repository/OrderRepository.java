@@ -78,6 +78,49 @@ public class OrderRepository {
         }
     }
 
+    public boolean updateOrder(Order order) {
+        String updateOrderQuery = "UPDATE Orders SET user_id = ?, branch_id = ?, order_date = ?, `option` = ?, status = ?, time_range = ? WHERE id = ?";
+        String deleteOrderItemsQuery = "DELETE FROM OrderItem WHERE order_id = ?";
+        String insertOrderItemQuery = "INSERT INTO OrderItem (order_id, product_id, quantity) VALUES (?, ?, ?)";
+
+        try (Connection connection = DatabaseConnection.getInstance().getConnection()) {
+            connection.setAutoCommit(false); // Start transaction
+
+            // Update the order details
+            try (PreparedStatement orderStatement = connection.prepareStatement(updateOrderQuery)) {
+                orderStatement.setInt(1, order.getUserId());
+                orderStatement.setInt(2, order.getBranchId());
+                orderStatement.setDate(3, Date.valueOf(order.getOrderDate()));
+                orderStatement.setString(4, order.getOption());
+                orderStatement.setBoolean(5, order.isStatus(true));
+                orderStatement.setString(6, order.getTimeRange());
+                orderStatement.setInt(7, order.getId());
+
+                int rowsAffected = orderStatement.executeUpdate();
+                if (rowsAffected == 0) {
+                    connection.rollback(); // Rollback if no order is updated
+                    return false;
+                }
+            }
+
+            // Delete existing order items
+            try (PreparedStatement deleteStatement = connection.prepareStatement(deleteOrderItemsQuery)) {
+                deleteStatement.setInt(1, order.getId());
+                deleteStatement.executeUpdate();
+            }
+
+            // Insert updated order items
+            saveOrderItems(insertOrderItemQuery, connection, order.getId(), order.getItems());
+
+            connection.commit(); // Commit transaction
+            return true;
+        } catch (SQLException e) {
+            logError("Error updating order", e);
+            return false;
+        }
+    }
+
+
     public boolean checkOrderExistsInLastHour(int branchId) {
         String query = "SELECT COUNT(*) FROM Orders WHERE branch_id = ? AND order_time >= NOW() - INTERVAL 1 HOUR";
 
@@ -494,32 +537,7 @@ public class OrderRepository {
     }
 
 
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/productorder";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "admin";
 
-    public List<OrderProduct> getProductsByOrderId(int id) {
-        List<OrderProduct> products = new ArrayList<>();
-        String query = "SELECT * FROM order_product WHERE order_id = ?";
-
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             PreparedStatement statement = connection.prepareStatement(query)) {
-
-            statement.setInt(1, id);
-            ResultSet resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                products.add(new OrderProduct(
-                        resultSet.getInt("order_id"),
-                        resultSet.getDouble("quantity"),
-                        resultSet.getInt("product_id")
-                ));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return products;
-    }
 
     public List<OrderProduct> getProductsForOrder(int orderId) {
         List<OrderProduct> orderProducts = new ArrayList<>();

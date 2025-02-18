@@ -13,7 +13,7 @@
             <font>
                 <Font size="22.0" />
             </font></Label>
-        <Label layoutX="65.0" layoutY="68.0" prefHeight="32.0" prefWidth="144.0" text="User Name     :">
+        <Label layoutX="65.0" layoutY="68.0" prefHeight="32.0" prefWidth="144.0" text="User Name :">
             <font>
                 <Font size="22.0" />
             </font></Label>
@@ -147,6 +147,10 @@
             <Label fx:id="notificationLabel" layoutX="10" layoutY="10" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" text="Pending Orders: 0" />
             <Button fx:id="closeNotificationBtn" layoutX="300" layoutY="10" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-weight: bold;" text="X" />
         </AnchorPane>
+      <TextField fx:id="orderIdTextField" layoutX="1234.0" layoutY="425.0" prefHeight="40.0" prefWidth="61.0">
+         <font>
+            <Font size="34.0" />
+         </font></TextField>
 
     </children>
     <opaqueInsets>

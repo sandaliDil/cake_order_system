@@ -5,7 +5,6 @@ import com.example.foodordersystem.model.Product;
 import com.example.foodordersystem.repository.OrderRepository;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +19,10 @@ public class OrderService {
 
     public int saveOrder(Order order) {
         return orderRepository.saveOrder(order);
+    }
+
+    public boolean updateOrder(Order order) {
+        return orderRepository.updateOrder(order);
     }
 
     public int getOrderCount() {
