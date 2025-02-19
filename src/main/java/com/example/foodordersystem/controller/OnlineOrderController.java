@@ -7,6 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
@@ -72,13 +73,21 @@ public class OnlineOrderController {
             OrderDetailsController controller = loader.getController();
             controller.loadOrderDetails(order);
 
-            Stage stage = (Stage) sourceButton.getScene().getWindow();
-            stage.getScene().setRoot(root);
-        } catch (IOException e) {
+            // Create a new Stage for full-screen display
+            Stage orderDetailsStage = new Stage();
+            orderDetailsStage.setTitle("Order Details");
+            orderDetailsStage.setScene(new Scene(root));
 
+            // Set full-screen mode
+            orderDetailsStage.setMaximized(true); // Maximized window
+
+            orderDetailsStage.show();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-
 }
+
+
+

@@ -1,12 +1,17 @@
 package com.example.foodordersystem.service;
 
+import com.example.foodordersystem.model.Branch;
 import com.example.foodordersystem.model.Order;
 import com.example.foodordersystem.model.Product;
+import com.example.foodordersystem.model.User;
+import com.example.foodordersystem.repository.BranchRepository;
 import com.example.foodordersystem.repository.OrderRepository;
+import com.example.foodordersystem.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 public class OrderService {
@@ -45,6 +50,7 @@ public class OrderService {
         return orderRepository.checkOrderExists(branchId, orderDate, timeRange);
     }
 
+
     /**
      * Searches for orders by their ID.
      *
@@ -57,10 +63,6 @@ public class OrderService {
 
     public Order getOrderById(int orderId) {
         return orderRepository.getOrderById(orderId);
-    }
-
-    public boolean checkOrderExistsInLastHour(int branchId) {
-        return !orderRepository.checkOrderExistsInLastHour(branchId);
     }
 
 }

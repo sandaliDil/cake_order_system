@@ -221,11 +221,6 @@
             <Font name="System Bold" size="15.0" />
          </font>
       </CheckBox>
-      <Button fx:id="minimizeButtonutton" graphicTextGap="1.0" layoutX="1294.0" layoutY="1.0" mnemonicParsing="false" onAction="#minimizeWindow" prefHeight="39.0" prefWidth="40.0" style="-fx-background-color: #D02323;" text="--" textAlignment="CENTER" textFill="#f8f6f6">
-         <font>
-            <Font name="System Bold" size="13.0" />
-         </font>
-      </Button>
 
    </children>
    <opaqueInsets>

@@ -669,13 +669,6 @@ public class OrderController {
         }
         order.setTimeRange(selectedTime);
 
-        // Prevent duplicate orders for the same branch, date, and time range
-        if (orderService.checkOrderExists(selectedBranch.getId(), order.getOrderDate(), selectedTime)) {
-            System.out.println("An order for this branch at this time already exists.");
-            showAlert("Error", "An order for this branch has already been placed at this time.");
-            return -1;
-        }
-
         // Capture the selected option (Checkbox selection)
         String selectedOption = "0";  // Default value
         if (checkbox1.isSelected()) {
@@ -1519,14 +1512,7 @@ public class OrderController {
         }
     }
 
-    public void loadOrderDetails(Order order) {
-        usernameLabel.setText(order.getUserName()); // Assuming `getUsername()` exists in Order
-        System.out.println(order.getUserName());
-        orderDatePicker.setValue(order.getOrderDate()); // Assuming it's a LocalDate
-        System.out.println(order.getOrderDate());
-        //branchComboBox.setValue(order.getBranchId()); // Assuming `getBranchName()` exists
-        loadProductsForOrder(order.getId()); // Load product details
-    }
+
 
     public void loadProductsForOrder(int orderId) {
         // Fetch order products

@@ -3,6 +3,7 @@ package com.example.foodordersystem.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ public class Order {
     private int branchId;
     private int userId;
     private String userName;
+    private String branchName;
     private LocalDate orderDate;
     private String option;
     private boolean status;
@@ -22,7 +24,6 @@ public class Order {
         this.status = status;
         this.option = option;
         this.orderDate = LocalDate.from(orderDate.atStartOfDay());
-        this.userName = userName;
         this.userId = userId;
         this.branchId = branchId;
     }
@@ -35,6 +36,9 @@ public class Order {
     public Order(int id, int branchId, int userId, String userName, LocalDate orderDate, LocalDate orderDate1, String option, String timeRange, boolean status) {
     }
 
+    public <E> Order(int id, int branchId, int userId, Object o, Object o1, LocalDate orderDate, String option, boolean status, String timeRange, ArrayList<E> es) {
+    }
+
 
     public boolean isStatus() {
         return status;
@@ -45,7 +49,6 @@ public class Order {
         this.id = id;
         this.branchId = branchId;
         this.userId = userId;
-        this.userName = userName;
         this.orderDate = orderDate;
         this.option = option;
         this.status = status;
@@ -83,14 +86,6 @@ public class Order {
 
     public void setUserId(int userId) {
         this.userId = userId;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 
     public LocalDate getOrderDate() {
@@ -131,4 +126,21 @@ public class Order {
 
     public void setItem(List<Map<String, Object>> orderProducts) {
     }
+
+    public void setUserName(String userName) {
+    }
+
+    public void setBranchName(String branchName) {
+    }
+
+    public String getBranchName() {
+        return branchName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+
+
 }

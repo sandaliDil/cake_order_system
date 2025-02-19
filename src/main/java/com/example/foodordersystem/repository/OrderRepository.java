@@ -402,7 +402,6 @@ public class OrderRepository {
                 order.setId(resultSet.getInt("id"));
                 order.setBranchId(resultSet.getInt("branch_id"));
                 order.setUserId(resultSet.getInt("user_id"));
-                order.setUserName(resultSet.getString("user_name"));
                 order.setOrderDate(resultSet.getDate("order_date").toLocalDate().atStartOfDay());
                 order.setOption(resultSet.getString("option"));
 
@@ -485,7 +484,6 @@ public class OrderRepository {
             // Existing order, update it
             existingOrder.setBranchId(order.getBranchId());
             existingOrder.setUserId(order.getUserId());
-            existingOrder.setUserName(order.getUserName());
           //  existingOrder.setOrderDate(order.getOrderDate());
             existingOrder.setOption(order.getOption());
 
@@ -562,5 +560,6 @@ public class OrderRepository {
         }
         return orderProducts;
     }
+
 
 }

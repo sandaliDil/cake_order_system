@@ -2,7 +2,9 @@ package com.example.foodordersystem.controller;
 
 import com.example.foodordersystem.Session;
 import com.example.foodordersystem.model.*;
+import com.example.foodordersystem.repository.BranchRepository;
 import com.example.foodordersystem.repository.OrderRepository;
+import com.example.foodordersystem.repository.UserRepository;
 import com.example.foodordersystem.service.BranchService;
 import com.example.foodordersystem.service.OrderService;
 import com.example.foodordersystem.service.ProductService;
@@ -34,7 +36,6 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
@@ -58,6 +59,8 @@ public class OrderDetailsController {
     @FXML
     private Label usernameLabel;
     @FXML
+    private Label usernameText;
+    @FXML
     private DatePicker orderDatePicker;
     @FXML
     private ComboBox<String> branchComboBox;
@@ -74,12 +77,18 @@ public class OrderDetailsController {
     @FXML
     private ComboBox<String> printerComboBox;
     @FXML
+    private CheckBox morning;
+    @FXML
+    private CheckBox afternoon;
+    @FXML
     private Label totalQuantityLabel;
     @FXML private TableColumn<Product, Double> quantityColumn;
 
 
 
     private final OrderRepository orderRepository = new OrderRepository();
+    private final UserRepository userRepository = new UserRepository();
+    private final BranchRepository branchRepository = new BranchRepository();
     private BranchService branchService;
     private ProductService productService;
     private OrderService orderService;
@@ -187,53 +196,7 @@ public class OrderDetailsController {
     public void setUsername(String username) {
         usernameLabel.setText(username);
     }
-
-    /**
-     * Loads products into three separate tables (productTable1, productTable2, and productTable3).
-     */
-//    private void loadProducts() {
-//        List<Product> allProducts = productService.getAllProducts();
-//
-//        ObservableList<Product> productList1 = FXCollections.observableArrayList();
-//        ObservableList<Product> productList2 = FXCollections.observableArrayList();
-//        ObservableList<Product> productList3 = FXCollections.observableArrayList();
-//
-//        int totalProducts = allProducts.size();
-//        int productsPerTable = 10;
-//
-//        // Distribute the products across the three tables
-//        if (totalProducts > 0) {
-//            productList1.addAll(allProducts.subList(0, Math.min(productsPerTable, totalProducts)));
-//        }
-//        if (totalProducts > productsPerTable) {
-//            productList2.addAll(allProducts.subList(productsPerTable, Math.min(productsPerTable * 2, totalProducts)));
-//        }
-//        if (totalProducts > productsPerTable * 2) {
-//            productList3.addAll(allProducts.subList(productsPerTable * 2, Math.min(productsPerTable * 3,
-//                    totalProducts)));
-//        }
-//
-//        // Set the items for each table
-//        productTable1.setItems(productList1);
-//        productTable2.setItems(productList2);
-//        productTable3.setItems(productList3);
-//
-//        // Create quantity columns
-//        TableColumn<Product, String> quantityColumn1 = createQuantityColumn();
-//        TableColumn<Product, String> quantityColumn2 = createQuantityColumn();
-//        TableColumn<Product, String> quantityColumn3 = createQuantityColumn();
-//
-//        // Create checkbox columns
-//        TableColumn<Product, Boolean> checkboxColumn1 = createCheckboxColumn();
-//        TableColumn<Product, Boolean> checkboxColumn2 = createCheckboxColumn();
-//        TableColumn<Product, Boolean> checkboxColumn3 = createCheckboxColumn();
-//
-//        // Add the columns to the tables
-//        productTable1.getColumns().addAll(checkboxColumn1, quantityColumn1);
-//        productTable2.getColumns().addAll(checkboxColumn2, quantityColumn2);
-//        productTable3.getColumns().addAll(checkboxColumn3, quantityColumn3);
-//    }
-
+    
     private void clearCheckboxes(TableView<Product> table) {
         for (Product product : table.getItems()) {
             product.setSelected(false);
@@ -502,94 +465,98 @@ public class OrderDetailsController {
     }
 
     @FXML
-    private boolean updateOrder(ActionEvent event) {
-        String username = usernameLabel.getText();
-        System.out.println("Username: " + username);
+    private void updateOrder(ActionEvent event) {
+        try {
+            String username = usernameLabel.getText();
+            System.out.println("Username: " + username);
 
-        User loggedInUser = Session.getInstance().getLoggedInUser();
-        if (loggedInUser == null) {
-            System.out.println("No user is logged in.");
-            showAlert("Error", "Please log in to update the order.");
-            return false;
-        }
+            User loggedInUser = Session.getInstance().getLoggedInUser();
+            if (loggedInUser == null) {
+                System.out.println("No user is logged in.");
+                showAlert("Error", "Please log in to update an order.");
+                return;
+            }
 
-        Order order = getSelectedOrder(); // Assume this method retrieves the selected order
+            if (orderIdTextField.getText().isEmpty()) {
+                showAlert("Error", "No order selected for update.");
+                return;
+            }
+            int orderId = Integer.parseInt(orderIdTextField.getText());
+            System.out.println("Updating order ID: " + orderId);
 
-        if (order == null) {
-            showAlert("Error", "No order selected for update.");
-            return false;
-        }
+            Order existingOrder = orderService.getOrderById(orderId);
+            if (existingOrder == null) {
+                System.out.println("Order not found for ID: " + orderId);
+                showAlert("Error", "Order not found.");
+                return;
+            }
 
-        // Get Order ID
-        int orderId = order.getId();
-        System.out.println("Updating Order ID: " + orderId);
+            existingOrder.setUserId(loggedInUser.getId());
 
-        order.setUserId(loggedInUser.getId());
+            String selectedBranchName = branchComboBox.getValue();
+            if (selectedBranchName == null) {
+                showAlert("Error", "Please select a branch.");
+                return;
+            }
+            Branch selectedBranch = getBranchByName(selectedBranchName);
+            if (selectedBranch == null) {
+                showAlert("Error", "Selected branch is not valid.");
+                return;
+            }
+            existingOrder.setBranchId(selectedBranch.getId());
 
-        // Validate branch selection
-        String selectedBranchName = branchComboBox.getValue();
-        if (selectedBranchName == null) {
-            System.out.println("Branch is not selected.");
-            showAlert("Error", "Please select a branch.");
-            return false;
-        }
+            if (orderDatePicker.getValue() == null) {
+                showAlert("Error", "Please select an order date.");
+                return;
+            }
+            existingOrder.setOrderDate(orderDatePicker.getValue().atStartOfDay());
 
-        Branch selectedBranch = getBranchByName(selectedBranchName);
-        if (selectedBranch == null) {
-            System.out.println("Branch not found.");
-            showAlert("Error", "Selected branch is not valid.");
-            return false;
-        }
+            String selectedTime = null;
+            if (morning.isSelected()) {
+                selectedTime = "morning";
+            } else if (afternoon.isSelected()) {
+                selectedTime = "afternoon";
+            }
+            if (selectedTime == null) {
+                showAlert("Error", "Please select a time range (Morning or Afternoon).");
+                return;
+            }
+            existingOrder.setTimeRange(selectedTime);
 
-        order.setBranchId(selectedBranch.getId());
+            String selectedOption = "0";
+            if (checkbox1.isSelected()) {
+                selectedOption = "ළග කඩ";
+            } else if (checkbox2.isSelected()) {
+                selectedOption = "දුර කඩ";
+            } else if (checkbox3.isSelected()) {
+                selectedOption = "අපේ කඩ";
+            }
+            existingOrder.setOption(selectedOption);
 
-        // Validate order date
-        if (orderDatePicker.getValue() == null) {
-            System.out.println("Order date is not selected.");
-            showAlert("Error", "Please select an order date.");
-            return false;
-        }
-        order.setOrderDate(orderDatePicker.getValue().atStartOfDay());
+            List<OrderProduct> orderProducts = new ArrayList<>();
+            if (!addOrderProductsFromTable(productTable1, orderProducts) ||
+                    !addOrderProductsFromTable(productTable2, orderProducts)) {
+                showAlert("Error", "Please enter valid quantities for all products.");
+                return;
+            }
+            existingOrder.setItems(orderProducts);
 
-        // Capture the selected option (Checkbox selection)
-        String selectedOption = "0";  // Default value
-        if (checkbox1.isSelected()) {
-            selectedOption = "ළග කඩ";
-        } else if (checkbox2.isSelected()) {
-            selectedOption = "දුර කඩ";
-        } else if (checkbox3.isSelected()) {
-            selectedOption = "අපේ කඩ";
-        }
-        order.setOption(selectedOption);
+            System.out.println("Final Order Details: " + existingOrder);
 
-        // Validate and update order products
-        List<OrderProduct> orderProducts = new ArrayList<>();
-        if (!addOrderProductsFromTable(productTable1, orderProducts) ||
-                !addOrderProductsFromTable(productTable2, orderProducts) ||
-                !addOrderProductsFromTable(productTable3, orderProducts)) {
-            System.out.println("Invalid quantity in order.");
-            showAlert("Error", "Please enter valid quantities for all products.");
-            return false;
-        }
+            boolean isUpdated = orderService.updateOrder(existingOrder);
+            System.out.println("Update Status: " + isUpdated);
 
-        order.setItems(orderProducts);
-        order.setStatus(true);
-
-        // Call the method to load order details (Optional)
-        loadOrderDetails(order);
-
-        // Update the order
-        boolean isUpdated = orderService.updateOrder(order);
-
-        if (isUpdated) {
-            System.out.println("Order updated successfully.");
-            showAlert("Success", "Order updated successfully.");
-            return true;
-        } else {
-            showAlert("Error", "Failed to update the order. Please try again.");
-            return false;
+            if (isUpdated) {
+                showAlert("Success", "Order updated successfully.");
+            } else {
+                showAlert("Error", "Failed to update the order. Please try again.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "An error occurred while updating the order.");
         }
     }
+
 
     private boolean addOrderProductsFromTable(TableView<Product> productTable, List<OrderProduct> orderProducts) {
         boolean isValid = true;
@@ -644,41 +611,44 @@ public class OrderDetailsController {
      * Generates and prints an order summary with detailed product information across two pages.
      */
     @FXML
-    private void printOrderSummary(boolean orderId) {
+    private void printOrderSummary() {
         StringBuilder firstPageContent = new StringBuilder();
         StringBuilder secondPageContent = new StringBuilder();
 
+        int orderId = Integer.parseInt(orderIdTextField.getText());
+        List<OrderProduct> orderProducts = orderRepository.getProductsForOrder(orderId);
+        Map<Integer, Double> productQuantityMap = orderProducts.stream()
+                .collect(Collectors.toMap(OrderProduct::getProductId, OrderProduct::getQuantity));
+
+
         // Get user details
-        String OrderId = orderIdTextField.getText();
+        // Get user details
         String username = usernameLabel.getText();
         String orderDate = orderDatePicker.getValue().toString();
         String selectedBranchName = branchComboBox.getValue();
 
-        // Build the first page (Narrow paper size)
         firstPageContent.append("<html>")
                 .append("<head>")
                 .append("<meta charset=\"UTF-8\">")
                 .append("<title>Order Summary</title>")
                 .append("<style>")
                 .append("@page { size: auto; margin: 10px; }")
-                .append("body { font-family: Arial, sans-serif; margin: 0; padding: 5px; font-size: 10px; " +
-                        "width: 13cm; height: 40cm; }")
+                .append("body { font-family: Arial, sans-serif; margin: 0; padding: 5px; font-size: 10px; width: 13cm;" +
+                        " height: 40cm; }")
                 .append("h2 { text-align: center; font-size: 16px; margin: 5px 0; }")
                 .append(".order-details { margin: 10px 0; }")
                 .append("table { width: 37%; border-collapse: collapse; }")
-                .append("th, td { text-align: center; border: 1px solid #000; text-align: left; " +
-                        "padding: 5px; font-size: 10px; }")
+                .append("th, td { text-align: center; border: 1px solid #000; text-align: left; padding: 5px; font-size: 10px; }")
                 .append("td.qty { text-align: center; width: 50px; }")
                 .append("th { background-color: #f2f2f2; }")
                 .append("</style>")
                 .append("</head>")
                 .append("<body>")
-                .append("<div><strong>Order ID:</strong> ").append(orderId).append("</div>")
+                .append("<div><strong>Order Id:</strong> ").append(orderId).append("</div>")
                 .append("<div><strong>User:</strong> ").append(username).append("</div>")
                 .append("<div><strong>Date:</strong> ").append(orderDate).append("</div>")
                 .append("<div style='font-size: 12px;'>")
-                .append(selectedBranchName != null ? "<strong>" + selectedBranchName + "</strong>" :
-                        "<strong>N/A</strong>")
+                .append(selectedBranchName != null ? "<strong>" + selectedBranchName + "</strong>" : "<strong>N/A</strong>")
                 .append("</div>")
                 .append("<table>")
                 .append("<thead>")
@@ -695,24 +665,23 @@ public class OrderDetailsController {
         double totalQuantityFirst6 = 0;
         for (int i = 0; i < Math.min(7, allProducts.size()); i++) {
             Product product = allProducts.get(i);
-            double quantity = getQuantityFromCell(product);
+            double quantity = productQuantityMap.getOrDefault(product.getId(), 0.0);
             totalQuantityFirst6 += quantity;
 
             firstPageContent.append("<tr>")
-                    .append("<td>").append(product.getProductName()).append("</td>");
-            firstPageContent.append("<td class='qty'>").append(formatQuantity(getQuantityFromCell(product)));
+                    .append("<td>").append(product.getProductName()).append("</td>")
+                    .append("<td class='qty'>").append(formatQuantity(quantity));
             if (product.isSelected()) {
                 firstPageContent.append("(Order)");
             }
-            firstPageContent .append("</td>")
-                    .append("</tr>");
+            firstPageContent.append("</td></tr>");
         }
 
         // Add total for the first 6 products
         firstPageContent.append("<tr>")
                 .append("<td><strong>තැ ටි ගණන </strong></td>")
-                .append("<td class='qty'><strong>").append(formatQuantityForTotal(totalQuantityFirst6)).
-                append("</strong></td>")
+                .append("<td class='qty'><strong>").append(formatQuantityForTotal(totalQuantityFirst6))
+                .append("</strong></td>")
                 .append("</tr>")
                 .append("<tr><td colspan='2' style='height: 12px;'></td></tr>");
 
@@ -720,13 +689,12 @@ public class OrderDetailsController {
         if (allProducts.size() > 7) {
             for (int i = 7; i < allProducts.size(); i++) {
                 Product product = allProducts.get(i);
-                double quantity = getQuantityFromCell(product);
+                double quantity = productQuantityMap.getOrDefault(product.getId(), 0.0);
 
                 firstPageContent.append("<tr>")
-                        .append("<td>").append(product.getProductName()).append("</td>");
-                firstPageContent.append("<td class='qty'>").append(formatQuantity(getQuantityFromCell(product)));
+                        .append("<td>").append(product.getProductName()).append("</td>")
+                        .append("<td class='qty'>").append(formatQuantity(quantity));
 
-                // Add "Kg" for the first product on the second page and "Order" if selected
                 if (i == 7 && quantity > 0) {
                     firstPageContent.append(" Kg");
                 }
@@ -734,8 +702,7 @@ public class OrderDetailsController {
                     firstPageContent.append("(Order)");
                 }
 
-                firstPageContent.append("</td>")
-                        .append("</tr>");
+                firstPageContent.append("</td></tr>");
 
                 // Add spacing after the 16th product
                 if (i == 16) {
@@ -978,7 +945,6 @@ public class OrderDetailsController {
 
     @FXML
     private void printOrderSummary2() {
-
         StringBuilder secondPageContent = new StringBuilder();
 
         // Get user details
@@ -992,7 +958,11 @@ public class OrderDetailsController {
         allProducts.addAll(productTable2.getItems());
         allProducts.addAll(productTable3.getItems());
 
-
+        // Get quantities from the order repository
+        int orderId = Integer.parseInt(orderIdTextField.getText());
+        List<OrderProduct> orderProducts = orderRepository.getProductsForOrder(orderId);
+        Map<Integer, Double> productQuantityMap = orderProducts.stream()
+                .collect(Collectors.toMap(OrderProduct::getProductId, OrderProduct::getQuantity));
 
         // Second page content
         secondPageContent.append("<html>")
@@ -1013,7 +983,7 @@ public class OrderDetailsController {
                 .append("</style>")
                 .append("</head>")
                 .append("<body>")
-                // .append("<div><strong>Order ID:</strong> ").append(orderId).append("</div>")
+                .append("<div><strong>Order Id:</strong> ").append(orderId).append("</div>")
                 .append("<div><strong>User:</strong> ").append(username).append("</div>")
                 .append("<div><strong>Date:</strong> ").append(orderDate).append("</div>")
                 .append("<div style='font-size: 12px;'>")
@@ -1025,11 +995,11 @@ public class OrderDetailsController {
                 .append("</thead>")
                 .append("<tbody>");
 
-        List<Integer> selectedIndices = List.of(9, 10, 11, 19, 12, 15, 16, 17, 18, 14, 7,13, 8, 20, 21);
+        List<Integer> selectedIndices = List.of(9, 10, 11, 19, 12, 15, 16, 17, 18, 14, 7, 13, 8, 20, 21);
         for (int i : selectedIndices) {
             if (i < allProducts.size()) {
                 Product product = allProducts.get(i);
-                double quantity = getQuantityFromCell(product);
+                double quantity = productQuantityMap.getOrDefault(product.getId(), 0.0); // Get correct quantity
 
                 secondPageContent.append("<tr>")
                         .append("<td>").append(product.getProductName()).append("</td>");
@@ -1056,7 +1026,6 @@ public class OrderDetailsController {
                 .append("</body>")
                 .append("</html>");
 
-
         Platform.runLater(() -> {
             // Get selected printer from ComboBox
             String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
@@ -1069,7 +1038,6 @@ public class OrderDetailsController {
                         .orElse(null);
 
                 if (selectedPrinter != null) {
-
                     System.out.println("Printing on printer: " + selectedPrinter.getName());
                     try {
                         synchronized (this) {
@@ -1080,7 +1048,6 @@ public class OrderDetailsController {
                         System.out.println("Error during printing: " + e.getMessage());
                         e.printStackTrace();
                     }
-
                 } else {
                     System.out.println("Printer not found: " + selectedPrinterName);
                 }
@@ -1088,10 +1055,9 @@ public class OrderDetailsController {
                 System.out.println("No printer selected.");
             }
         });
-
     }
 
-    @FXML
+
     private void printOrderSummary3() {
         StringBuilder firstPageContent = new StringBuilder();
 
@@ -1106,13 +1072,12 @@ public class OrderDetailsController {
                 .append("<title>Order Summary</title>")
                 .append("<style>")
                 .append("@page { size: auto; margin: 10px; }")
-                .append("body { font-family: Arial, sans-serif; margin: 0; padding: 5px; font-size: 10px;" +
-                        " width: 13cm; height: 40cm; }")
+                .append("body { font-family: Arial, sans-serif; margin: 0; padding: 5px; font-size: 10px; width: 13cm;" +
+                        " height: 40cm; }")
                 .append("h2 { text-align: center; font-size: 16px; margin: 5px 0; }")
                 .append(".order-details { margin: 10px 0; }")
                 .append("table { width: 37%; border-collapse: collapse; }")
-                .append("th, td { text-align: center; border: 1px solid #000; text-align: left; padding: 5px;" +
-                        " font-size: 10px; }")
+                .append("th, td { text-align: center; border: 1px solid #000; text-align: left; padding: 5px; font-size: 10px; }")
                 .append("td.qty { text-align: center; width: 50px; }")
                 .append("th { background-color: #f2f2f2; }")
                 .append("</style>")
@@ -1121,8 +1086,7 @@ public class OrderDetailsController {
                 .append("<div><strong>User:</strong> ").append(username).append("</div>")
                 .append("<div><strong>Date:</strong> ").append(orderDate).append("</div>")
                 .append("<div style='font-size: 12px;'>")
-                .append(selectedBranchName != null ? "<strong>" + selectedBranchName + "</strong>" :
-                        "<strong>N/A</strong>")
+                .append(selectedBranchName != null ? "<strong>" + selectedBranchName + "</strong>" : "<strong>N/A</strong>")
                 .append("</div>")
                 .append("<table>")
                 .append("<thead>")
@@ -1135,11 +1099,18 @@ public class OrderDetailsController {
         allProducts.addAll(productTable2.getItems());
         allProducts.addAll(productTable3.getItems());
 
+        // Get product quantity from the order
+        Map<Integer, Double> productQuantityMap = new HashMap<>();
+        List<OrderProduct> orderProducts = orderRepository.getProductsForOrder(Integer.parseInt(orderIdTextField.getText()));
+        for (OrderProduct orderProduct : orderProducts) {
+            productQuantityMap.put(orderProduct.getProductId(), orderProduct.getQuantity());
+        }
+
         // First 6 products
         double totalQuantityFirst6 = 0;
         for (int i = 0; i < Math.min(7, allProducts.size()); i++) {
             Product product = allProducts.get(i);
-            double quantity = getQuantityFromCell(product);
+            double quantity = productQuantityMap.getOrDefault(product.getId(), 0.0);
             totalQuantityFirst6 += quantity;
 
             firstPageContent.append("<tr>")
@@ -1148,9 +1119,7 @@ public class OrderDetailsController {
             if (product.isSelected()) {
                 firstPageContent.append("(Order)");
             }
-            firstPageContent.append("</td>");
-
-            firstPageContent .append("</tr>");
+            firstPageContent.append("</td></tr>");
         }
 
         // Add total for the first 6 products
@@ -1165,13 +1134,12 @@ public class OrderDetailsController {
         if (allProducts.size() > 7) {
             for (int i = 7; i < allProducts.size(); i++) {
                 Product product = allProducts.get(i);
-                double quantity = getQuantityFromCell(product);
+                double quantity = productQuantityMap.getOrDefault(product.getId(), 0.0);
 
                 firstPageContent.append("<tr>")
                         .append("<td>").append(product.getProductName()).append("</td>")
                         .append("<td class='qty'>").append(formatQuantity(quantity));
 
-                // Add "Kg" for the first product on the second page and "Order" if selected
                 if (i == 7 && quantity > 0) {
                     firstPageContent.append(" Kg");
                 }
@@ -1179,8 +1147,7 @@ public class OrderDetailsController {
                     firstPageContent.append("(Order)");
                 }
 
-                firstPageContent.append("</td>")
-                        .append("</tr>");
+                firstPageContent.append("</td></tr>");
 
                 // Add spacing after the 16th product
                 if (i == 16) {
@@ -1210,7 +1177,6 @@ public class OrderDetailsController {
                     try {
                         synchronized (this) {
                             printHTML(firstPageContent.toString(), 1, printerComboBox);
-
                             System.out.println("Print job completed successfully.");
                         }
                     } catch (Exception e) {
@@ -1227,10 +1193,11 @@ public class OrderDetailsController {
         });
     }
 
+
     @FXML
     private void saveAndPrintOrder(ActionEvent event) {
-        boolean orderId = updateOrder(event);
-        printOrderSummary(orderId);
+        updateOrder(event);
+        printOrderSummary();
     }
 
     @FXML
@@ -1288,12 +1255,29 @@ public class OrderDetailsController {
     }
 
     public void loadOrderDetails(Order order) {
-        usernameLabel.setText(order.getUserName() +" online"); // Assuming `getUsername()` exists in Order
-        System.out.println(order.getUserName());
-        orderDatePicker.setValue(order.getOrderDate()); // Assuming it's a LocalDate
-        System.out.println(order.getOrderDate());
-         loadProductsForOrder(order.getId()); // Load product details
+        if (order != null) {
+            // Set order date
+            orderDatePicker.setValue(order.getOrderDate());
 
+            // Fetch user details
+            User user = userRepository.getUserById(order.getUserId());
+            String userName = (user != null) ? user.getUserName() : "Unknown User";
+            usernameText.setText(userName);
+
+            // Fetch branch details
+            Branch branch = branchRepository.getBranchById(order.getBranchId());
+            if (branch != null && branchComboBox != null) {
+                ObservableList<String> branchNames = FXCollections.observableArrayList();
+                branchNames.add(branch.getBranchName());
+                branchComboBox.setItems(branchNames);
+                branchComboBox.getSelectionModel().select(branch.getBranchName());
+            } else {
+                System.out.println("Error: branchComboBox is null or branch not found.");
+            }
+
+            // Load product details
+            loadProductsForOrder(order.getId());
+        }
     }
 
     private void loadProductsForOrder(int orderId) {

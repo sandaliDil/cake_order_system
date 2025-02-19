@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class BranchRepository {
 
@@ -172,4 +173,20 @@ public class BranchRepository {
         }
         return branches;
     }
+
+    public Branch getBranchById(int branchId) {
+        String query = "SELECT * FROM branches WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, branchId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return new Branch(rs.getInt("id"), rs.getString("branch_name"), rs.getString("branch_code"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="printProductDetails" cacheShape="false" centerShape="false" focusTraversable="true" prefHeight="850.0" prefWidth="1287.0" scaleShape="false" style="-fx-background-color: FFFFFF;" stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.foodordersystem.controller.OrderDetailsController">
+<AnchorPane fx:id="printProductDetails" cacheShape="false" centerShape="false" focusTraversable="true" prefHeight="816.0" prefWidth="1408.0" scaleShape="false" style="-fx-background-color: FFFFFF;" stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.foodordersystem.controller.OrderDetailsController">
     <children>
         <Label layoutX="556.0" layoutY="64.0" prefHeight="32.0" prefWidth="85.0" text="Date     :">
             <font>
@@ -32,7 +43,7 @@
                 <Image url="@image/4.png" />
             </image>
         </ImageView>
-        <VBox layoutX="-6.0" layoutY="753.0" prefHeight="37.0" prefWidth="1264.0" style="-fx-background-color: #27b786;" />
+        <VBox layoutX="-6.0" layoutY="772.0" prefHeight="37.0" prefWidth="1302.0" style="-fx-background-color: #27b786;" />
         <Pane layoutX="45.0" layoutY="184.0" prefHeight="562.0" prefWidth="1067.0" style="-fx-background-color: #D3FDEE;">
             <children>
                 <TableView fx:id="productTable2" editable="true" layoutX="364.0" layoutY="9.0" prefHeight="544.0" prefWidth="348.0" styleClass="rounded-table">
@@ -52,7 +63,7 @@
                 </TableView>
             </children>
         </Pane>
-        <ImageView fitHeight="128.0" fitWidth="154.0" layoutX="1210.0" layoutY="644.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="31.0">
+        <ImageView fitHeight="128.0" fitWidth="139.0" layoutX="1230.0" layoutY="652.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="50.0">
             <image>
                 <Image url="@image/logo.png" />
             </image>
@@ -71,13 +82,13 @@
             <font>
                 <Font name="System Bold" size="18.0" />
             </font></Button>
-        <ComboBox fx:id="branchComboBox" editable="true" layoutX="216.0" layoutY="119.0" prefHeight="40.0" prefWidth="246.0" promptText="Search Branch" />
+        <ComboBox fx:id="branchComboBox" editable="true" layoutX="216.0" layoutY="119.0" mouseTransparent="true" pickOnBounds="false" prefHeight="40.0" prefWidth="246.0" promptText="Search Branch" />
         <Label fx:id="usernameLabel1" layoutX="213.0" layoutY="68.0" prefHeight="32.0" prefWidth="253.0">
             <font>
                 <Font size="22.0" />
             </font>
         </Label>
-        <Label fx:id="usernameLabel11" layoutX="213.0" layoutY="68.0" prefHeight="32.0" prefWidth="253.0">
+        <Label fx:id="usernameText" layoutX="213.0" layoutY="68.0" prefHeight="32.0" prefWidth="253.0">
             <font>
                 <Font size="22.0" />
             </font>
@@ -147,10 +158,25 @@
             <Label fx:id="notificationLabel" layoutX="10" layoutY="10" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" text="Pending Orders: 0" />
             <Button fx:id="closeNotificationBtn" layoutX="300" layoutY="10" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-weight: bold;" text="X" />
         </AnchorPane>
-      <TextField fx:id="orderIdTextField" layoutX="1234.0" layoutY="425.0" prefHeight="40.0" prefWidth="61.0">
+      <TextField fx:id="orderIdTextField" layoutX="1262.0" layoutY="177.0" prefHeight="38.0" prefWidth="85.0">
          <font>
-            <Font size="34.0" />
+            <Font size="17.0" />
          </font></TextField>
+      <CheckBox fx:id="morning" layoutX="1253.0" layoutY="65.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="103.0" text="Morning">
+         <font>
+            <Font name="System Bold" size="15.0" />
+         </font>
+      </CheckBox>
+      <CheckBox fx:id="afternoon" layoutX="1253.0" layoutY="103.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="103.0" text="Afternoon">
+         <font>
+            <Font name="System Bold" size="15.0" />
+         </font>
+      </CheckBox>
+      <Label layoutX="1158.0" layoutY="180.0" prefHeight="32.0" prefWidth="103.0" text="Order Id - :">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
 
     </children>
     <opaqueInsets>
