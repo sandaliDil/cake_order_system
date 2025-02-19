@@ -38,7 +38,7 @@
                 <Font size="22.0" />
             </font>
         </Label>
-        <ImageView fitHeight="217.0" fitWidth="246.0" layoutX="1142.0" layoutY="573.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="0.0">
+        <ImageView fitHeight="246.0" fitWidth="204.0" layoutX="1172.0" layoutY="592.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="32.0">
             <image>
                 <Image url="@image/4.png" />
             </image>
@@ -93,14 +93,6 @@
                 <Font size="22.0" />
             </font>
         </Label>
-        <Button fx:id="saveAndPrintOrder" layoutX="750.0" layoutY="121.0" mnemonicParsing="false" onAction="#saveAndPrintOrder" prefHeight="53.0" prefWidth="196.0" style="-fx-background-color: #27b786;" text="Save &amp; Print">
-            <cursor>
-                <Cursor fx:constant="HAND" />
-            </cursor>
-            <font>
-                <Font name="System Bold" size="18.0" />
-            </font>
-        </Button>
         <Button layoutX="1190.0" layoutY="354.0" mnemonicParsing="false" onAction="#logout" prefHeight="46.0" prefWidth="182.0" style="-fx-background-color: #27b786;" text="LogOut" AnchorPane.leftAnchor="1139.0" AnchorPane.rightAnchor="5.0">
             <cursor>
                 <Cursor fx:constant="HAND" />
@@ -129,14 +121,6 @@
             </font>
         </Label>
         <Accordion />
-        <Button fx:id="clearData" layoutX="626.0" layoutY="121.0" mnemonicParsing="false" onAction="#clearData" prefHeight="53.0" prefWidth="118.0" style="-fx-background-color: #27b786;" text="Clear">
-            <cursor>
-                <Cursor fx:constant="HAND" />
-            </cursor>
-            <font>
-                <Font name="System Bold" size="18.0" />
-            </font>
-        </Button>
         <TextField layoutX="-4.0" layoutY="1.0" prefHeight="39.0" prefWidth="1368.0" promptText="Wsana Bakers " style="-fx-background-color: #27b786;" text="                                                                                                           Wasana Bakers (PVT) LTD                                     " AnchorPane.rightAnchor="0.0">
             <font>
                 <Font name="System Bold" size="18.0" />
@@ -162,21 +146,19 @@
          <font>
             <Font size="17.0" />
          </font></TextField>
-      <CheckBox fx:id="morning" layoutX="1253.0" layoutY="65.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="103.0" text="Morning">
-         <font>
-            <Font name="System Bold" size="15.0" />
-         </font>
-      </CheckBox>
-      <CheckBox fx:id="afternoon" layoutX="1253.0" layoutY="103.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="103.0" text="Afternoon">
-         <font>
-            <Font name="System Bold" size="15.0" />
-         </font>
-      </CheckBox>
       <Label layoutX="1158.0" layoutY="180.0" prefHeight="32.0" prefWidth="103.0" text="Order Id - :">
          <font>
-            <Font size="18.0" />
+            <Font size="19.0" />
          </font>
       </Label>
+      <Button fx:id="updateStatusButton" layoutX="646.0" layoutY="118.0" mnemonicParsing="false" onAction="#updateStatusButton" prefHeight="53.0" prefWidth="238.0" style="-fx-background-color: #27b786;" text="Print &amp; Update">
+         <font>
+            <Font name="System Bold" size="20.0" />
+         </font>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+      </Button>
 
     </children>
     <opaqueInsets>

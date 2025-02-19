@@ -1,13 +1,12 @@
 package com.example.foodordersystem.service;
 
-import com.example.foodordersystem.model.Branch;
-import com.example.foodordersystem.model.Order;
-import com.example.foodordersystem.model.Product;
-import com.example.foodordersystem.model.User;
+import com.example.foodordersystem.database.DatabaseConnection;
+import com.example.foodordersystem.model.*;
 import com.example.foodordersystem.repository.BranchRepository;
 import com.example.foodordersystem.repository.OrderRepository;
 import com.example.foodordersystem.repository.UserRepository;
 
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -64,5 +63,11 @@ public class OrderService {
     public Order getOrderById(int orderId) {
         return orderRepository.getOrderById(orderId);
     }
+
+    public boolean updateOrderStatusAndOption(int orderId, int status, String option) {
+        return orderRepository.updateStatusAndOption(orderId, status, option);
+    }
+
+
 
 }

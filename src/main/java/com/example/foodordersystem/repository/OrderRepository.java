@@ -561,5 +561,24 @@ public class OrderRepository {
         return orderProducts;
     }
 
+    public boolean updateStatusAndOption(int orderId, int status, String option) {
+        String updateQuery = "UPDATE Orders SET status = ?, `option` = ? WHERE id = ?";
+
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement statement = connection.prepareStatement(updateQuery)) {
+            statement.setInt(1, status);
+            statement.setString(2, option);
+            statement.setInt(3, orderId);
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+
 
 }

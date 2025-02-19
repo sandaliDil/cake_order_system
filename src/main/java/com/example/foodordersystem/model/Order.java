@@ -39,6 +39,9 @@ public class Order {
     public <E> Order(int id, int branchId, int userId, Object o, Object o1, LocalDate orderDate, String option, boolean status, String timeRange, ArrayList<E> es) {
     }
 
+    public Order(int id, int userId, int branchId, LocalDate orderDate, String option, boolean status, String timeRange) {
+    }
+
 
     public boolean isStatus() {
         return status;

@@ -40,10 +40,12 @@ public class OnlineOrderController {
         loadPendingOrders();
     }
 
+
     private void loadPendingOrders() {
         List<Order> pendingOrders = orderService.getPendingOrders();
         ObservableList<Order> orderList = FXCollections.observableArrayList(pendingOrders);
         orderTable.setItems(orderList);
+        orderTable.refresh(); // Refresh table
     }
 
     private void addButtonToTable() {

@@ -82,6 +82,10 @@ public class OrderDetailsController {
     private CheckBox afternoon;
     @FXML
     private Label totalQuantityLabel;
+
+    @FXML
+    private Button updateStatusButton;
+
     @FXML private TableColumn<Product, Double> quantityColumn;
 
 
@@ -108,7 +112,7 @@ public class OrderDetailsController {
     @FXML
     public void initialize() {
 
-        populateBranchComboBox();
+
         productNameColumn1.setCellValueFactory(new PropertyValueFactory<>("productName"));
         productNameColumn2.setCellValueFactory(new PropertyValueFactory<>("productName"));
         productNameColumn3.setCellValueFactory(new PropertyValueFactory<>("productName"));
@@ -116,9 +120,8 @@ public class OrderDetailsController {
         if (tableView == null) {
             tableView = new TableView<>();
         }
-        TableColumn<Product, String> quantityColumn = createQuantityColumn();
-        tableView.getColumns().add(quantityColumn);
-        tableView.setRowFactory(tv -> new TableRow<>());
+
+
 //        loadProducts();
         orderDatePicker.setValue(LocalDate.now());
         branchComboBox.requestFocus();
@@ -151,57 +154,13 @@ public class OrderDetailsController {
 
     }
 
-    /**
-     * Populates the branchComboBox with branch names retrieved from the branchService.
-     */
-    private void populateBranchComboBox() {
 
-        List<Branch> branches = branchService.getAllBranches();
-        branchNames = FXCollections.observableArrayList();
-        for (Branch branch : branches) {
-            branchNames.add(branch.getBranchName());
-        }
-
-        // Create a FilteredList with a complex filtering predicate
-        FilteredList<String> filteredBranches = new FilteredList<>(branchNames, s -> true);
-        branchComboBox.setItems(filteredBranches);
-
-        // Add a listener to filter branches based on input
-        branchComboBox.getEditor().textProperty().addListener((observable,
-                                                               oldValue, newValue) -> {
-            filteredBranches.setPredicate(branchName -> {
-                if (newValue == null || newValue.isEmpty()) {
-                    return true; // Show all branches when filter text is empty
-                }
-
-                // Convert input and branch name to lower case for case-insensitive comparison
-                String lowerCaseBranchName = branchName.toLowerCase();
-                String lowerCaseNewValue = newValue.toLowerCase();
-
-                // Filter branches that contain the input string (substring match)
-                boolean containsMatch = lowerCaseBranchName.contains(lowerCaseNewValue);
-
-                boolean multiWordMatch = Arrays.stream(lowerCaseNewValue.split("\\s+"))
-                        .allMatch(keyword -> lowerCaseBranchName.contains(keyword));
-
-                // Return true if either filter condition is met
-                return containsMatch || multiWordMatch;
-            });
-
-            // Optionally show the dropdown if filtering
-            branchComboBox.show();
-        });
-    }
 
     public void setUsername(String username) {
         usernameLabel.setText(username);
     }
-    
-    private void clearCheckboxes(TableView<Product> table) {
-        for (Product product : table.getItems()) {
-            product.setSelected(false);
-        }
-    }
+
+
 
 
     private void updateTotalQuantity() {
@@ -224,196 +183,6 @@ public class OrderDetailsController {
 
         // Update the totalQuantityLabel
         totalQuantityLabel.setText("T0TAL -: " + totalQuantity);
-    }
-
-    private TableColumn<Product, String> createQuantityColumn() {
-        TableColumn<Product, String> quantityColumn = new TableColumn<>("Quantity");
-
-        quantityColumn.setCellFactory(column -> new TableCell<>() {
-            private final TextField quantityField = new TextField();
-
-            {
-                quantityField.setStyle("-fx-background-color: lightyellow; -fx-font-size: 16px;" +
-                        " -fx-background-radius: 15px 15px 15px 15px;");
-                quantityField.setPrefWidth(60);
-
-                // Allow only double values (digits and a single dot)
-                quantityField.addEventFilter(KeyEvent.KEY_TYPED, event -> {
-                    String input = event.getCharacter();
-                    String currentText = quantityField.getText();
-
-                    // Allow digits, a single dot (if not already present), and block invalid input
-                    if (!input.matches("\\d") && !input.equals(".") ||
-                            (input.equals(".") && currentText.contains("."))) {
-                        event.consume();
-                    }
-                });
-
-                quantityField.setEditable(true);
-                setGraphic(quantityField);
-
-                quantityField.setOnKeyPressed(event -> {
-                    TableView<Product> tableView = getTableView();
-                    int currentIndex = getIndex();
-                    int nextIndex = currentIndex + 1;
-                    int previousIndex = currentIndex - 1;
-
-                    switch (event.getCode()) {
-                        case ENTER:
-                            // Validate or default the quantityField value
-                            if (quantityField.getText().isEmpty()) {
-                                quantityField.setText("0");
-                            }
-
-                            // If not the last row, move to the next row in the same table
-                            if (nextIndex < tableView.getItems().size()) {
-                                focusCell(nextIndex, quantityColumn);
-                            } else {
-                                // Move to the first row of the next table's Quantity column
-                                TableView<Product> nextTable = getNextTable(tableView);
-                                if (nextTable != null) {
-                                    focusCell(0, getQuantityColumn(nextTable));
-                                }
-                            }
-                            break;
-                        case UP:
-                            if (previousIndex >= 0) {
-                                focusCell(previousIndex, quantityColumn);
-                            } else {
-                                // Move to the last row of the previous table
-                                TableView<Product> previousTable = getPreviousTable(tableView);
-                                if (previousTable != null) {
-                                    int lastRowIndex = previousTable.getItems().size() - 1;
-                                    focusCell(lastRowIndex, getQuantityColumn(previousTable));
-                                }
-                            }
-                            break;
-
-                        case DOWN:
-                            if (nextIndex < tableView.getItems().size()) {
-                                focusCell(nextIndex, quantityColumn);
-                            } else {
-                                // Move to the first row of the next table
-                                TableView<Product> nextTable = getNextTable(tableView);
-                                if (nextTable != null) {
-                                    focusCell(0, getQuantityColumn(nextTable));
-                                }
-                            }
-                            break;
-
-                        case LEFT:
-                            navigateToPreviousColumn(tableView, currentIndex);
-                            break;
-
-                        case RIGHT:
-                            navigateToNextColumn(tableView, currentIndex);
-                            break;
-                    }
-                });
-
-                quantityField.textProperty().addListener((observable, oldValue,
-                                                          newValue) -> {
-                    Product product = getTableRow() != null ? getTableRow().getItem() : null;
-                    if (product != null) {
-                        productQuantityMap.put(product.getId(), quantityField);
-                    }
-                    // Call the method to update the total quantity
-                    updateTotalQuantity();
-                });
-            }
-
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    if (item != null) {
-                        quantityField.setText(item);
-                    } else {
-                        quantityField.setText("");
-                    }
-                    setGraphic(quantityField);
-                }
-            }
-        });
-        return quantityColumn;
-    }
-
-    /**
-     * Focuses on the given cell in the table column.
-     */
-    private void focusCell(int rowIndex, TableColumn<Product, ?> column) {
-        TableCell<Product, ?> cell = getCellAt(rowIndex, column);
-        if (cell != null) {
-            TextField field = (TextField) cell.getGraphic();
-            if (field != null) {
-                field.requestFocus();
-            }
-        }
-    }
-    private TableView<Product> getPreviousTable(TableView<Product> currentTable) {
-        if (currentTable == productTable3) {
-            return productTable2;
-        } else if (currentTable == productTable2) {
-            return productTable1;
-        }
-        return null;
-    }
-    private TableView<Product> getNextTable(TableView<Product> currentTable) {
-        if (currentTable == productTable1) {
-            return productTable2;
-        } else if (currentTable == productTable2) {
-            return productTable3;
-        }
-        return null;
-    }
-
-    private TableColumn<Product, ?> getQuantityColumn(TableView<Product> table) {
-        return table.getColumns().stream()
-                .filter(column -> "Quantity".equals(column.getText()))
-                .findFirst()
-                .orElse(null);
-    }
-
-    /**
-     * Moves focus to the previous column if available.
-     */
-    private void navigateToPreviousColumn(TableView<Product> tableView, int rowIndex) {
-        int currentColumnIndex = tableView.getColumns().indexOf(rowIndex);
-        if (currentColumnIndex > 0) {
-            TableColumn<Product, ?> previousColumn = tableView.getColumns().get(currentColumnIndex - 1);
-            focusCell(rowIndex, previousColumn);
-        }
-    }
-
-    /**
-     * Moves focus to the next column if available.
-     */
-    private void navigateToNextColumn(TableView<Product> tableView, int rowIndex) {
-        int currentColumnIndex = tableView.getColumns().indexOf(rowIndex);
-        if (currentColumnIndex < tableView.getColumns().size() - 1) {
-            TableColumn<Product, ?> nextColumn = tableView.getColumns().get(currentColumnIndex + 1);
-            focusCell(rowIndex, nextColumn);
-        }
-    }
-
-    /**
-     * Returns the TableCell at a specific row and column.
-     */
-    private TableCell<Product, ?> getCellAt(int rowIndex, TableColumn<Product, ?> column) {
-        TableView<Product> tableView = column.getTableView();
-        for (Node node : tableView.lookupAll(".table-row-cell")) {
-            if (node instanceof TableRow<?> row && row.getIndex() == rowIndex) {
-                for (Node cellNode : row.lookupAll(".table-cell")) {
-                    if (cellNode instanceof TableCell<?, ?> cell && column.equals(cell.getTableColumn())) {
-                        return (TableCell<Product, ?>) cell;
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     private TableColumn<Product, Boolean> createCheckboxColumn() {
@@ -460,129 +229,7 @@ public class OrderDetailsController {
         return checkboxColumn;
     }
 
-    private Order getSelectedOrder() {
-        return tableView.getSelectionModel().getSelectedItem();
-    }
 
-    @FXML
-    private void updateOrder(ActionEvent event) {
-        try {
-            String username = usernameLabel.getText();
-            System.out.println("Username: " + username);
-
-            User loggedInUser = Session.getInstance().getLoggedInUser();
-            if (loggedInUser == null) {
-                System.out.println("No user is logged in.");
-                showAlert("Error", "Please log in to update an order.");
-                return;
-            }
-
-            if (orderIdTextField.getText().isEmpty()) {
-                showAlert("Error", "No order selected for update.");
-                return;
-            }
-            int orderId = Integer.parseInt(orderIdTextField.getText());
-            System.out.println("Updating order ID: " + orderId);
-
-            Order existingOrder = orderService.getOrderById(orderId);
-            if (existingOrder == null) {
-                System.out.println("Order not found for ID: " + orderId);
-                showAlert("Error", "Order not found.");
-                return;
-            }
-
-            existingOrder.setUserId(loggedInUser.getId());
-
-            String selectedBranchName = branchComboBox.getValue();
-            if (selectedBranchName == null) {
-                showAlert("Error", "Please select a branch.");
-                return;
-            }
-            Branch selectedBranch = getBranchByName(selectedBranchName);
-            if (selectedBranch == null) {
-                showAlert("Error", "Selected branch is not valid.");
-                return;
-            }
-            existingOrder.setBranchId(selectedBranch.getId());
-
-            if (orderDatePicker.getValue() == null) {
-                showAlert("Error", "Please select an order date.");
-                return;
-            }
-            existingOrder.setOrderDate(orderDatePicker.getValue().atStartOfDay());
-
-            String selectedTime = null;
-            if (morning.isSelected()) {
-                selectedTime = "morning";
-            } else if (afternoon.isSelected()) {
-                selectedTime = "afternoon";
-            }
-            if (selectedTime == null) {
-                showAlert("Error", "Please select a time range (Morning or Afternoon).");
-                return;
-            }
-            existingOrder.setTimeRange(selectedTime);
-
-            String selectedOption = "0";
-            if (checkbox1.isSelected()) {
-                selectedOption = "ළග කඩ";
-            } else if (checkbox2.isSelected()) {
-                selectedOption = "දුර කඩ";
-            } else if (checkbox3.isSelected()) {
-                selectedOption = "අපේ කඩ";
-            }
-            existingOrder.setOption(selectedOption);
-
-            List<OrderProduct> orderProducts = new ArrayList<>();
-            if (!addOrderProductsFromTable(productTable1, orderProducts) ||
-                    !addOrderProductsFromTable(productTable2, orderProducts)) {
-                showAlert("Error", "Please enter valid quantities for all products.");
-                return;
-            }
-            existingOrder.setItems(orderProducts);
-
-            System.out.println("Final Order Details: " + existingOrder);
-
-            boolean isUpdated = orderService.updateOrder(existingOrder);
-            System.out.println("Update Status: " + isUpdated);
-
-            if (isUpdated) {
-                showAlert("Success", "Order updated successfully.");
-            } else {
-                showAlert("Error", "Failed to update the order. Please try again.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            showAlert("Error", "An error occurred while updating the order.");
-        }
-    }
-
-
-    private boolean addOrderProductsFromTable(TableView<Product> productTable, List<OrderProduct> orderProducts) {
-        boolean isValid = true;
-        for (Product row : productTable.getItems()) {
-            OrderProduct orderProduct = new OrderProduct();
-            orderProduct.setProductId(row.getId());
-
-            // Get quantity from the corresponding TextField
-            double quantity = (double) getQuantityFromCell(row);
-            if (quantity < 0) {
-                isValid = false;  // If quantity is invalid, mark the validation as failed
-            }
-            orderProduct.setQuantity((double) quantity);
-            orderProducts.add(orderProduct); // Add the order product to the list
-        }
-        return isValid;
-    }
-
-    private Branch getBranchByName(String branchName) {
-        for (Branch branch : branchService.getAllBranches()) { // Replace with your actual list or method
-            if (branch.getBranchName().equals(branchName)) {
-                return branch;
-            }
-        }
-        return null; // Return null if no match found
-    }
 
     private double getQuantityFromCell(Product row) {
         TextField quantityField = productQuantityMap.get(row.getId());
@@ -623,7 +270,7 @@ public class OrderDetailsController {
 
         // Get user details
         // Get user details
-        String username = usernameLabel.getText();
+        String username = usernameText.getText();
         String orderDate = orderDatePicker.getValue().toString();
         String selectedBranchName = branchComboBox.getValue();
 
@@ -948,7 +595,7 @@ public class OrderDetailsController {
         StringBuilder secondPageContent = new StringBuilder();
 
         // Get user details
-        String username = usernameLabel.getText();
+        String username = usernameText.getText();
         String orderDate = orderDatePicker.getValue().toString();
         String selectedBranchName = branchComboBox.getValue();
 
@@ -1062,9 +709,11 @@ public class OrderDetailsController {
         StringBuilder firstPageContent = new StringBuilder();
 
         // Get user details
-        String username = usernameLabel.getText();
+        String username = usernameText.getText();
         String orderDate = orderDatePicker.getValue().toString();
         String selectedBranchName = branchComboBox.getValue();
+        int orderId = Integer.parseInt(orderIdTextField.getText());
+
 
         firstPageContent.append("<html>")
                 .append("<head>")
@@ -1083,6 +732,7 @@ public class OrderDetailsController {
                 .append("</style>")
                 .append("</head>")
                 .append("<body>")
+                .append("<div><strong>Order Id:</strong> ").append(orderId).append("</div>")
                 .append("<div><strong>User:</strong> ").append(username).append("</div>")
                 .append("<div><strong>Date:</strong> ").append(orderDate).append("</div>")
                 .append("<div style='font-size: 12px;'>")
@@ -1195,12 +845,6 @@ public class OrderDetailsController {
 
 
     @FXML
-    private void saveAndPrintOrder(ActionEvent event) {
-        updateOrder(event);
-        printOrderSummary();
-    }
-
-    @FXML
     private void printOrder(ActionEvent event) {
         printOrderSummary2();
     }
@@ -1235,23 +879,6 @@ public class OrderDetailsController {
             System.out.println("Error loading login screen.");
             showAlert("Error", "Failed to load login screen.");
         }
-    }
-
-    @FXML
-    private void clearData() {
-
-        branchComboBox.getSelectionModel().clearSelection();
-        for (Map.Entry<Integer, TextField> entry : productQuantityMap.entrySet()) {
-            entry.getValue().clear();
-        }
-
-        for (TextField quantityField : productQuantityMap.values()) {
-            quantityField.clear();
-        }
-        clearCheckboxes(productTable1);
-        clearCheckboxes(productTable2);
-        clearCheckboxes(productTable3);
-
     }
 
     public void loadOrderDetails(Order order) {
@@ -1347,5 +974,36 @@ public class OrderDetailsController {
         });
 
         return quantityField;
+    }
+
+
+
+    public void updateStatusButton(ActionEvent actionEvent) {
+        int orderId = Integer.parseInt(orderIdTextField.getText()); // Get Order ID
+        String selectedOption = getSelectedOption(); // Get selected option
+        printOrderSummary();
+        boolean isUpdated = orderService.updateOrderStatusAndOption(orderId, 1, selectedOption); // Update status to 1
+
+        if (isUpdated) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "Order status and option updated successfully!", ButtonType.OK);
+            alert.showAndWait();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to update order.", ButtonType.OK);
+            alert.showAndWait();
+        }
+    }
+
+    /**
+     * Retrieve the selected option from checkboxes
+     */
+    private String getSelectedOption() {
+        if (checkbox1.isSelected()) {
+            return "ළග කඩ";
+        } else if (checkbox2.isSelected()) {
+            return "දුර කඩ";
+        } else if (checkbox3.isSelected()) {
+            return "අපේ කඩ";
+        }
+        return "0"; // Default if no checkbox is selected
     }
 }
