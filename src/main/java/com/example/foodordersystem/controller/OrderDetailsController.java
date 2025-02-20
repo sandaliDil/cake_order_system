@@ -77,16 +77,8 @@ public class OrderDetailsController {
     @FXML
     private ComboBox<String> printerComboBox;
     @FXML
-    private CheckBox morning;
-    @FXML
-    private CheckBox afternoon;
-    @FXML
     private Label totalQuantityLabel;
 
-    @FXML
-    private Button updateStatusButton;
-
-    @FXML private TableColumn<Product, Double> quantityColumn;
 
 
 
@@ -984,13 +976,13 @@ public class OrderDetailsController {
         printOrderSummary();
         boolean isUpdated = orderService.updateOrderStatusAndOption(orderId, 1, selectedOption); // Update status to 1
 
-        if (isUpdated) {
+        /*if (isUpdated) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "Order status and option updated successfully!", ButtonType.OK);
             alert.showAndWait();
         } else {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to update order.", ButtonType.OK);
             alert.showAndWait();
-        }
+        }*/
     }
 
     /**

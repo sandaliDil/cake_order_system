@@ -2,6 +2,8 @@ package com.example.foodordersystem.controller;
 
 import com.example.foodordersystem.model.Order;
 import com.example.foodordersystem.repository.OrderProductRepository;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -11,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.List;
@@ -38,8 +41,14 @@ public class OnlineOrderController {
 
         addButtonToTable();
         loadPendingOrders();
+        startAutoRefresh();
     }
 
+    private void startAutoRefresh() {
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2), event -> loadPendingOrders()));
+        timeline.setCycleCount(Timeline.INDEFINITE); // Repeat indefinitely
+        timeline.play();
+    }
 
     private void loadPendingOrders() {
         List<Order> pendingOrders = orderService.getPendingOrders();

@@ -33,6 +33,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
@@ -92,8 +93,7 @@ public class OrderController {
     @FXML
     private Button closeNotificationBtn;
     @FXML
-    private Button minimizeButton;
-
+    private StackPane notificationContainer;
 
     private final OrderRepository orderRepository = new OrderRepository();
     private BranchService branchService;
@@ -111,17 +111,7 @@ public class OrderController {
     }
 
     @FXML
-    private void minimizeWindow(ActionEvent event) {
-        Stage stage = (Stage) minimizeButton.getScene().getWindow();
-        stage.setIconified(true); // Minimize the window
-    }
-
-    @FXML
     public void initialize() {
-
-        if (minimizeButton == null) {
-            System.out.println("minimizeButton is NULL! Check FXML file.");
-        }
 
         populateBranchComboBox();
         productNameColumn1.setCellValueFactory(new PropertyValueFactory<>("productName"));
@@ -225,6 +215,7 @@ public class OrderController {
 
     private void showNotification() {
         notificationBar.setVisible(true);
+        notificationBar.setMaxWidth(100);
         FadeTransition fadeIn = new FadeTransition(Duration.millis(500), notificationBar);
         fadeIn.setFromValue(0);
         fadeIn.setToValue(1);

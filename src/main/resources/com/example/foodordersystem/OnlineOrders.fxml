@@ -3,17 +3,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.foodordersystem.controller.OnlineOrderController"
-            prefHeight="400.0" prefWidth="600.0">
+<AnchorPane prefHeight="400.0" prefWidth="355.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.foodordersystem.controller.OnlineOrderController">
 
-    <TableView fx:id="orderTable">
+    <TableView fx:id="orderTable" prefHeight="400.0" prefWidth="355.0">
         <columns>
-            <TableColumn fx:id="idColumn" text="Order ID"/>
-            <TableColumn fx:id="optionColumn" text="Option"/>
-            <TableColumn fx:id="dateColumn" text="Order Date"/>
-            <TableColumn fx:id="actionColumn" text="Actions" />
+            <TableColumn fx:id="idColumn" text="Order ID" />
+            <TableColumn fx:id="optionColumn" text="Option" />
+            <TableColumn fx:id="dateColumn" text="Order Date" />
+            <TableColumn fx:id="actionColumn" prefWidth="114.0" text="Actions" />
 
         </columns>
     </TableView>
