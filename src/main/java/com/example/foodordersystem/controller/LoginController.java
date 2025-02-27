@@ -15,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 
@@ -105,9 +106,11 @@ public class LoginController {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/foodordersystem/Dashboard.fxml"));
             Parent root = fxmlLoader.load();
+
+
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setMaximized(true);
+            stage.setMaximized(false);
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

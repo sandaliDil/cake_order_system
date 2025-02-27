@@ -578,6 +578,20 @@ public class OrderRepository {
         }
     }
 
+    public void updateOrderProductQuantity(int orderId, int productId, double quantity) throws SQLException {
+        String query = "UPDATE order_product SET quantity = ? WHERE order_id = ? AND product_id = ?";
+
+        try(Connection connection = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement statement = connection.prepareStatement(query)){
+            statement.setDouble(1, quantity);
+            statement.setInt(2, orderId);
+            statement.setInt(3, productId);
+
+            int rowsUpdated = statement.executeUpdate();
+            System.out.println(rowsUpdated + " row(s) updated.");
+        }
+    }
+
 
 
 

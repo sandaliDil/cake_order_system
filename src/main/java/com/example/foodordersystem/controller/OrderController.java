@@ -49,6 +49,8 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static kotlin.text.Typography.nbsp;
+
 
 public class OrderController {
 
@@ -754,6 +756,13 @@ public class OrderController {
         StringBuilder firstPageContent = new StringBuilder();
         StringBuilder secondPageContent = new StringBuilder();
 
+        String selectedTime = null;
+        if (morning.isSelected()) {
+            selectedTime = "Morning";
+        } else if (afternoon.isSelected()) {
+            selectedTime = "Afternoon";
+        }
+
         // Get user details
         String username = usernameLabel.getText();
         String orderDate = orderDatePicker.getValue().toString();
@@ -780,7 +789,7 @@ public class OrderController {
                 .append("<body>")
                 .append("<div><strong>Order ID:</strong> ").append(orderId).append("</div>")
                 .append("<div><strong>User:</strong> ").append(username).append("</div>")
-                .append("<div><strong>Date:</strong> ").append(orderDate).append("</div>")
+                .append("<div><strong>Date:</strong> ").append(orderDate).append("&nbsp;&nbsp;(").append(selectedTime != null ? selectedTime : "N/A").append(")").append("</div>")
                 .append("<div style='font-size: 12px;'>")
                 .append(selectedBranchName != null ? "<strong>" + selectedBranchName + "</strong>" :
                         "<strong>N/A</strong>")
@@ -874,7 +883,7 @@ public class OrderController {
                 .append("<body>")
                 .append("<div><strong>Order ID:</strong> ").append(orderId).append("</div>")
                 .append("<div><strong>User:</strong> ").append(username).append("</div>")
-                .append("<div><strong>Date:</strong> ").append(orderDate).append("</div>")
+                .append("<div><strong>Date:</strong> ").append(orderDate).append("&nbsp;&nbsp;(").append(selectedTime != null ? selectedTime : "N/A").append(")").append("</div>")
                 .append("<div style='font-size: 12px;'>")
                 .append(selectedBranchName != null ? "<strong>" + selectedBranchName + "</strong>" :
                         "<strong>N/A</strong>")
@@ -1095,13 +1104,19 @@ public class OrderController {
         String orderDate = orderDatePicker.getValue().toString();
         String selectedBranchName = branchComboBox.getValue();
 
+        String selectedTime = null;
+        if (morning.isSelected()) {
+            selectedTime = "Morning";
+        } else if (afternoon.isSelected()) {
+            selectedTime = "Afternoon";
+        }
+
+
         // Gather products from all tables
         List<Product> allProducts = new ArrayList<>();
         allProducts.addAll(productTable1.getItems());
         allProducts.addAll(productTable2.getItems());
         allProducts.addAll(productTable3.getItems());
-
-
 
         // Second page content
         secondPageContent.append("<html>")
@@ -1124,7 +1139,7 @@ public class OrderController {
                 .append("<body>")
                 // .append("<div><strong>Order ID:</strong> ").append(orderId).append("</div>")
                 .append("<div><strong>User:</strong> ").append(username).append("</div>")
-                .append("<div><strong>Date:</strong> ").append(orderDate).append("</div>")
+                .append("<div><strong>Date:</strong> ").append(orderDate).append("&nbsp;&nbsp;(").append(selectedTime != null ? selectedTime : "N/A").append(")").append("</div>")
                 .append("<div style='font-size: 12px;'>")
                 .append(selectedBranchName != null ? "<strong>" + selectedBranchName + "</strong>" :
                         "<strong>N/A</strong>")
@@ -1209,6 +1224,13 @@ public class OrderController {
         String orderDate = orderDatePicker.getValue().toString();
         String selectedBranchName = branchComboBox.getValue();
 
+        String selectedTime = null;
+        if (morning.isSelected()) {
+            selectedTime = "Morning";
+        } else if (afternoon.isSelected()) {
+            selectedTime = "Afternoon";
+        }
+
         firstPageContent.append("<html>")
                 .append("<head>")
                 .append("<meta charset=\"UTF-8\">")
@@ -1228,7 +1250,7 @@ public class OrderController {
                 .append("</head>")
                 .append("<body>")
                 .append("<div><strong>User:</strong> ").append(username).append("</div>")
-                .append("<div><strong>Date:</strong> ").append(orderDate).append("</div>")
+                .append("<div><strong>Date:</strong> ").append(orderDate).append("&nbsp;&nbsp;(").append(selectedTime != null ? selectedTime : "N/A").append(")").append("</div>")
                 .append("<div style='font-size: 12px;'>")
                 .append(selectedBranchName != null ? "<strong>" + selectedBranchName + "</strong>" :
                         "<strong>N/A</strong>")

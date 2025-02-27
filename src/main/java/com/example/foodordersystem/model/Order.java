@@ -42,7 +42,6 @@ public class Order {
     public Order(int id, int userId, int branchId, LocalDate orderDate, String option, boolean status, String timeRange) {
     }
 
-
     public boolean isStatus() {
         return status;
     }
@@ -143,7 +142,5 @@ public class Order {
     public String getUserName() {
         return userName;
     }
-
-
 
 }

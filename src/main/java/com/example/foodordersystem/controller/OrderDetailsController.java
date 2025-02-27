@@ -257,7 +257,7 @@ public class OrderDetailsController {
         int orderId = Integer.parseInt(orderIdTextField.getText());
         List<OrderProduct> orderProducts = orderRepository.getProductsForOrder(orderId);
         Map<Integer, Double> productQuantityMap = orderProducts.stream()
-                .collect(Collectors.toMap(OrderProduct::getProductId, OrderProduct::getQuantity));
+                .collect(Collectors.toMap(  OrderProduct::getProductId, OrderProduct::getQuantity));
 
 
         // Get user details
