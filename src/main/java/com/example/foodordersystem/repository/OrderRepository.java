@@ -335,7 +335,7 @@ public class OrderRepository {
 
     public Map<String, Map<String, Double>> getOrderDetailsByDateAndOption(LocalDate date, String option) {
         // SQL query with added ORDER BY for product_id
-        String query = "SELECT b.branch_name, p.product_name, SUM(oi.quantity) AS total_quantity " +
+        String query = "SELECT b.branch_name, o.id, p.product_name, SUM(oi.quantity) AS total_quantity " +
                 "FROM Orders o " +
                 "JOIN OrderItem oi ON o.id = oi.order_id " +
                 "JOIN products p ON oi.product_id = p.id " +

@@ -94,8 +94,6 @@ public class OrderController {
     private AnchorPane notificationBar;
     @FXML
     private Button closeNotificationBtn;
-    @FXML
-    private StackPane notificationContainer;
 
     private final OrderRepository orderRepository = new OrderRepository();
     private BranchService branchService;
@@ -343,6 +341,7 @@ public class OrderController {
         for (Product product : table.getItems()) {
             product.setSelected(false);
         }
+
     }
 
 
@@ -672,6 +671,13 @@ public class OrderController {
             selectedOption = "අපේ කඩ";
         }
         order.setOption(selectedOption);
+
+        boolean orderExists = orderService.checkOrderExists(selectedBranch.getId(), order.getOrderDate(), order.getTimeRange());
+        if (orderExists) {
+            System.out.println("An order for this branch already exists on the same day.");
+            showAlert("Error", "An order for this branch has already been placed today.");
+            return -1;  // Return -1 to prevent saving the same order
+        }
 
         // Validate and add order products
         List<OrderProduct> orderProducts = new ArrayList<>();
@@ -1096,7 +1102,6 @@ public class OrderController {
 
     @FXML
     private void printOrderSummary2() {
-        StringBuilder firstPageContent = new StringBuilder();
         StringBuilder secondPageContent = new StringBuilder();
 
         // Get user details
@@ -1272,10 +1277,6 @@ public class OrderController {
             Product product = allProducts.get(i);
             double quantity = getQuantityFromCell(product);
             totalQuantityFirst6 += quantity;
-
-
-
-
             firstPageContent.append("<tr>")
                     .append("<td>").append(product.getProductName()).append("</td>")
                     .append("<td class='qty'>").append(formatQuantity(quantity));
@@ -1327,8 +1328,6 @@ public class OrderController {
                 .append("</body>")
                 .append("</html>");
 
-
-
         Platform.runLater(() -> {
             // Get selected printer from ComboBox
             String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
@@ -1371,14 +1370,8 @@ public class OrderController {
     private void saveAndPrintOrder(ActionEvent event) {
 
         int orderId = saveOrder(event);
-
-        // Print the order summary after saving
         printOrderSummary(orderId);
 
-//         Add a delay before clearing the data
-//        PauseTransition pause = new PauseTransition(Duration.seconds(10)); // 2-second delay
-//        pause.setOnFinished(e -> clearData());
-//        pause.play();
     }
 
 

@@ -7,6 +7,7 @@ module com.example.foodordersystem {
     requires javafx.media;
     requires javafx.swing;
 
+
     // Third-party libraries
     requires com.dlsc.formsfx;
     requires net.synedra.validatorfx;

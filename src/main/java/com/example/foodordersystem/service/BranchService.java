@@ -22,7 +22,6 @@ public class BranchService {
         return branchRepository.searchBranchesByName(branchName);
     }
 
-
     public int getBranchCount() {
         return branchRepository.getBranchCount();
     }

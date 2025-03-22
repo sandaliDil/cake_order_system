@@ -47,6 +47,7 @@ public class ProductRepository {
                 product.setProductName(resultSet.getString("product_name"));
                 return product;
             }
+
         } catch (SQLException e) {
             e.printStackTrace(); // Replace with proper logging
         }

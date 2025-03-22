@@ -1,7 +1,5 @@
 package com.example.foodordersystem.controller;
 
-import com.example.foodordersystem.model.Order;
-import com.example.foodordersystem.model.OrderProduct;
 import com.example.foodordersystem.repository.OrderRepository;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -36,6 +34,44 @@ public class OrderSummeryController {
     private static final int PAGE_SIZE = 13; // Number of rows per page
 
 
+    /**
+     * Load all orders placed on the given date into the TableView.
+     *
+     * @param date   Selected date to filter orders.
+     * @param option Selected option to filter orders (1, 2, or 3).
+     */
+    public void loadOrdersByDate(LocalDate date, String option) {
+        tableView.getColumns().clear(); // Clear existing columns
+        tableView.getItems().clear();   // Clear existing data
+
+        // Fetch order details filtered by both date and option
+        Map<String, Map<String, Double>> orderDetails = orderRepository.getOrderDetailsByDateAndOption(date, option);
+
+        if (orderDetails.isEmpty()) {
+            System.out.println("No orders found for the selected date and option.");
+            return;
+        }
+        // Get all product names (no limit)
+        List<String> productNames = getProductNames(orderDetails);
+        // Initialize product sums map
+        Map<String, Double> productSums = initializeProductSums(productNames);
+        // Add table columns
+        addBranchColumn();
+        addProductColumns(productNames);
+        // Rotate column headers
+        rotateColumnHeaders();
+        // Populate table data and calculate product sums
+        populateTableData(orderDetails, productNames, productSums);
+        // Add summary row at the top
+        addSummaryRow(productNames, productSums);
+        // Initialize pagination
+        initializePagination();
+        addUpdateButtonColumn(productNames);
+        addOrderIdColumn();
+
+    }
+
+
     @FXML
     private void onFilterButtonClick() {
         LocalDate selectedDate = datePicker.getValue();
@@ -50,50 +86,12 @@ public class OrderSummeryController {
         }
     }
 
-    /**
-     * Load all orders placed on the given date into the TableView.
-     *
-     * @param date   Selected date to filter orders.
-     * @param option Selected option to filter orders (1, 2, or 3).
-     */
-    public void loadOrdersByDate(LocalDate date, String option) {
-        tableView.getColumns().clear(); // Clear existing columns
-        tableView.getItems().clear();   // Clear existing data
-
-        // Fetch order details filtered by both date and option
-        Map<String, Map<String, Double>> orderDetails = orderRepository.getOrderDetailsByDateAndOption(date, option);
-
-
-        if (orderDetails.isEmpty()) {
-            System.out.println("No orders found for the selected date and option.");
-            return;
-        }
-
-        // Get all product names (no limit)
-        List<String> productNames = getProductNames(orderDetails);
-
-        // Initialize product sums map
-        Map<String, Double> productSums = initializeProductSums(productNames);
-
-        // Add table columns
-        addBranchColumn();
-        addProductColumns(productNames);
-
-        // Rotate column headers
-        rotateColumnHeaders();
-
-        // Populate table data and calculate product sums
-        populateTableData(orderDetails, productNames, productSums);
-
-        // Add summary row at the top
-        addSummaryRow(productNames, productSums);
-
-        // Initialize pagination
-        initializePagination();
-
-        addUpdateButtonColumn(productNames);
-
+    private void addOrderIdColumn() {
+        TableColumn<Map<String, String>, String> orderIdColumn = new TableColumn<>("Order ID");
+        orderIdColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get("orderId")));
+        tableView.getColumns().add(0, orderIdColumn); // Add at the beginning
     }
+
 
     private void addUpdateButtonColumn(List<String> productNames) {
         TableColumn<Map<String, String>, Void> updateColumn = new TableColumn<>("Update");
@@ -162,25 +160,31 @@ public class OrderSummeryController {
 
     private void updateQuantities(Map<String, String> rowData, List<String> productNames, Map<String, TextField> productFields) {
         try {
-            int orderId = Integer.parseInt(rowData.get("orderId"));
+
+            int orderId = 1;
 
             for (String productName : productNames) {
                 String quantityText = productFields.get(productName).getText().trim();
 
                 // Validate numeric input
                 if (!quantityText.matches("\\d+")) {
+
                     showErrorDialog("Invalid quantity for " + productName + ". Please enter a valid number.");
                     return; // Stop updating if invalid input is found
                 }
 
                 int newQuantity = Integer.parseInt(quantityText);
 
+                System.out.print(newQuantity);
                 // Retrieve productId and update if valid
                 String productIdKey = productName + "Id";
                 if (rowData.containsKey(productIdKey)) {
+
                     int productId = Integer.parseInt(rowData.get(productIdKey));
                     orderRepository.updateOrderProductQuantity(orderId, productId, newQuantity);
+
                     rowData.put(productName, formatQuantity((double) newQuantity));
+
                 }
             }
 
@@ -200,28 +204,14 @@ public class OrderSummeryController {
         alert.showAndWait();
     }
 
-    // Utility method to safely parse an integer
-    private int safeParseInt(String value, int defaultValue) {
-        if (value == null || value.trim().isEmpty()) {
-            return defaultValue; // Return default value if null/empty
-        }
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid number format: " + value);
-            return defaultValue; // Return default value on error
-        }
-    }
-
-
-    private List<String> getProductNames(Map<String, Map<String, Double>> orderDetails) {
+    private List<String> getProductNames(Map<String, Map<String, Double>> orderDetails)
+    {
         if (!orderDetails.isEmpty()) {
             Map.Entry<String, Map<String, Double>> firstEntry = orderDetails.entrySet().iterator().next();
             return new ArrayList<>(firstEntry.getValue().keySet());
         }
         return new ArrayList<>();
     }
-
 
     // 4. Add Product columns
     private void addProductColumns(List<String> productNames) {
@@ -241,7 +231,6 @@ public class OrderSummeryController {
         Map<String, Double> productSums = new HashMap<>();
         for (String productName : productNames) {
             productSums.put(productName, 0.0);
-
         }
         System.out.println(productNames);
         return productSums;
@@ -254,7 +243,6 @@ public class OrderSummeryController {
         tableView.getColumns().add(branchColumn);
     }
 
-
     // 6. Populate table data and calculate product sums
     private void populateTableData(Map<String, Map<String, Double>> orderDetails, List<String> productNames, Map<String, Double> productSums) {
         for (Map.Entry<String, Map<String, Double>> entry : orderDetails.entrySet()) {
@@ -264,18 +252,17 @@ public class OrderSummeryController {
             Map<String, String> row = new HashMap<>();
             row.put("Branch", branchName);
 
-            for (int i = 0; i < productNames.size(); i++) {
-                String productName = productNames.get(i);
-                Double quantity = productQuantities.getOrDefault(productName, 0.0);
+            // Ensure you retrieve and add the orderId if available
+            String orderId = productQuantities.containsKey("id") ? String.valueOf(productQuantities.get("id")) : "N/A";
+            row.put("id", orderId);
 
-                // Format the quantity to show as an integer if it's a whole number, otherwise as a decimal
-                String formattedQuantity = formatQuantity(quantity);
-
-                row.put(productName, formattedQuantity);
-
-
+            for (String productName : productNames) {
+                Double quantity = productQuantities.containsKey(productName)
+                        ? Double.parseDouble(productQuantities.get(productName).toString())
+                        : 0.0;
+                row.put(productName, formatQuantity(quantity));
             }
-             allData.add(row);
+            allData.add(row);
         }
     }
 
@@ -284,16 +271,12 @@ public class OrderSummeryController {
         Map<String, String> summaryRow = new HashMap<>();
         summaryRow.put("Branch", "Total");
 
-
         for (int i = 0; i < productNames.size(); i++) {
+
             String productName = productNames.get(i);
             double productSum = productSums.getOrDefault(productName, 0.0);
-
             summaryRow.put(productName, formatQuantity(productSum));
-
-
         }
-
         allData.add(0, summaryRow);
     }
 
@@ -339,7 +322,6 @@ public class OrderSummeryController {
             rotatedLabel.setMaxWidth(MAX_VALUE); // Ensure label stretches
             rotatedLabel.setMaxHeight(MAX_VALUE); // Ensure the label stretches vertically
 
-
             // Set the rotated label as the column's graphic
             column.setGraphic(rotatedLabel);
             column.setText(""); // Remove the default column text since we are using the custom graphic
@@ -367,40 +349,6 @@ public class OrderSummeryController {
         container.getChildren().add(tableView);
 
         return container; // Return the VBox containing the TableView
-    }
-
-    @FXML
-    private void onPrintButtonClick() {
-        PrinterJob printerJob = PrinterJob.createPrinterJob();
-
-        if (printerJob != null) {
-            Printer selectedPrinter = getPrinterByName("Microsoft Print to PDF"); // Replace with your printer name
-
-            if (selectedPrinter != null) {
-                printerJob.setPrinter(selectedPrinter);
-                PageLayout pageLayout = selectedPrinter.createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, Printer.MarginType.HARDWARE_MINIMUM);
-
-                double pageWidth = pageLayout.getPrintableWidth();
-                double pageHeight = pageLayout.getPrintableHeight();
-
-                int totalPages = pagination.getPageCount();
-
-                for (int i = 0; i < totalPages; i++) {
-                    VBox pageContent = createTablePage(i);
-                    pageContent.setPrefSize(pageWidth, pageHeight);
-
-                    boolean success = printerJob.printPage(pageLayout, pageContent);
-                    if (!success) {
-                        System.out.println("Failed to print page: " + (i + 1));
-                        break;
-                    }
-                }
-
-                printerJob.endJob();
-            } else {
-                System.out.println("Printer not found.");
-            }
-        }
     }
 
     // Method to find a printer by its name

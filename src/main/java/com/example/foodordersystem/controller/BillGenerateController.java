@@ -371,8 +371,6 @@ public class BillGenerateController {
                 }
             }
 
-
-
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);

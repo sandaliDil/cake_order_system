@@ -99,12 +99,8 @@ public class OrderDetailsController {
         this.orderService = new OrderService();
     }
 
-
-
     @FXML
     public void initialize() {
-
-
         productNameColumn1.setCellValueFactory(new PropertyValueFactory<>("productName"));
         productNameColumn2.setCellValueFactory(new PropertyValueFactory<>("productName"));
         productNameColumn3.setCellValueFactory(new PropertyValueFactory<>("productName"));
@@ -112,7 +108,6 @@ public class OrderDetailsController {
         if (tableView == null) {
             tableView = new TableView<>();
         }
-
 
 //        loadProducts();
         orderDatePicker.setValue(LocalDate.now());
@@ -143,17 +138,11 @@ public class OrderDetailsController {
                 checkbox2.setSelected(false);
             }
         });
-
     }
-
-
 
     public void setUsername(String username) {
         usernameLabel.setText(username);
     }
-
-
-
 
     private void updateTotalQuantity() {
         double totalQuantity = 0;
@@ -172,7 +161,6 @@ public class OrderDetailsController {
                 }
             }
         }
-
         // Update the totalQuantityLabel
         totalQuantityLabel.setText("T0TAL -: " + totalQuantity);
     }
@@ -221,8 +209,6 @@ public class OrderDetailsController {
         return checkboxColumn;
     }
 
-
-
     private double getQuantityFromCell(Product row) {
         TextField quantityField = productQuantityMap.get(row.getId());
         if (quantityField != null) {
@@ -259,8 +245,6 @@ public class OrderDetailsController {
         Map<Integer, Double> productQuantityMap = orderProducts.stream()
                 .collect(Collectors.toMap(  OrderProduct::getProductId, OrderProduct::getQuantity));
 
-
-        // Get user details
         // Get user details
         String username = usernameText.getText();
         String orderDate = orderDatePicker.getValue().toString();
@@ -389,7 +373,7 @@ public class OrderDetailsController {
         for (int i : selectedIndices) {
             if (i < allProducts.size()) {
                 Product product = allProducts.get(i);
-                double quantity = getQuantityFromCell(product);
+                double quantity = productQuantityMap.getOrDefault(product.getId(), 0.0);
 
                 secondPageContent.append("<tr>")
                         .append("<td>").append(product.getProductName()).append("</td>");
@@ -402,7 +386,7 @@ public class OrderDetailsController {
                     }
                     secondPageContent.append("</td>");
                 } else {
-                    secondPageContent.append("<td class='qty'>").append(formatQuantity(getQuantityFromCell(product)));
+                    secondPageContent.append("<td class='qty'>").append(formatQuantity(quantity));
                     if (product.isSelected()) {
                         secondPageContent.append("(Order)");
                     }
@@ -518,7 +502,6 @@ public class OrderDetailsController {
 
                 double contentHeight = Double.parseDouble(webEngine.executeScript("document.body.scrollHeight")
                         .toString());
-
 
                 // Get the selected printer name from the ComboBox
                 String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
@@ -834,8 +817,7 @@ public class OrderDetailsController {
             }
         });
     }
-
-
+    
     @FXML
     private void printOrder(ActionEvent event) {
         printOrderSummary2();
@@ -967,8 +949,6 @@ public class OrderDetailsController {
 
         return quantityField;
     }
-
-
 
     public void updateStatusButton(ActionEvent actionEvent) {
         int orderId = Integer.parseInt(orderIdTextField.getText()); // Get Order ID
