@@ -48,7 +48,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
-
+import java.util.logging.Logger;
 import static kotlin.text.Typography.nbsp;
 
 
@@ -931,7 +931,7 @@ public class OrderController {
                 .append("</body>")
                 .append("</html>");
 
-        Platform.runLater(() -> {
+
             // Get selected printer from ComboBox
             String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
 
@@ -948,7 +948,11 @@ public class OrderController {
                     try {
                         synchronized (this) {
                             printHTML1(secondPageContent.toString(), printerComboBox);
+                            System.out.println("xxx" + printerComboBox);
+                            System.out.println("i hate u "+secondPageContent);
                             printHTML(firstPageContent.toString(), 4, printerComboBox);
+                            System.out.println("xxx1" + printerComboBox);
+                            System.out.println("fuq" + firstPageContent);
                             System.out.println("Print job completed successfully.");
                         }
                     } catch (Exception e) {
@@ -961,7 +965,6 @@ public class OrderController {
             } else {
                 System.out.println("No printer selected.");
             }
-        });
 
     }
 
@@ -970,13 +973,17 @@ public class OrderController {
         WebEngine webEngine = webView.getEngine();
         webEngine.loadContent(secondPageContent);
 
+        System.out.println(secondPageContent);
+
+
+
         // Wait until content is fully loaded
         webEngine.getLoadWorker().stateProperty().addListener((observable, oldState,
                                                                newState) -> {
             if (newState == Worker.State.SUCCEEDED) {
                 // Get content height dynamically
-                double contentHeight = Double.parseDouble(webEngine.executeScript("document.body.scrollHeight")
-                        .toString());
+//                double contentHeight = Double.parseDouble(webEngine.executeScript("document.body.scrollHeight")
+//                        .toString());
 
                 // Get the selected printer name from the ComboBox
                 String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
@@ -997,10 +1004,9 @@ public class OrderController {
                     return;
                 }
 
+
                 PrinterJob printerJob = PrinterJob.createPrinterJob(printer);
                 if (printerJob != null) {
-
-
                     // Set custom page size and orientation
                     PageLayout pageLayout = printer.createPageLayout(
                             Paper.A4, PageOrientation.PORTRAIT, 10, 10, 10, 10
@@ -1187,7 +1193,6 @@ public class OrderController {
                 .append("</html>");
 
 
-        Platform.runLater(() -> {
             // Get selected printer from ComboBox
             String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
 
@@ -1217,7 +1222,7 @@ public class OrderController {
             } else {
                 System.out.println("No printer selected.");
             }
-        });
+
 
     }
 
@@ -1329,7 +1334,7 @@ public class OrderController {
                 .append("</body>")
                 .append("</html>");
 
-        Platform.runLater(() -> {
+
             // Get selected printer from ComboBox
             String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
 
@@ -1360,7 +1365,7 @@ public class OrderController {
             } else {
                 System.out.println("No printer selected.");
             }
-        });
+
 
     }
 
