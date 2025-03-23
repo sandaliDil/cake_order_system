@@ -166,18 +166,6 @@ public class TotalSummaryController {
     }
 
 
-
-    // 2. Initialize product sums map
-//    private Map<String, Double> initializeProductSums(List<String> productNames) {
-//        Map<String, Double> productSums = new HashMap<>();
-//        for (String productName : productNames) {
-//            productSums.put(productName, 0.0);
-//
-//        }
-//        System.out.println(productNames);
-//        return productSums;
-//    }
-
     // 3. Add Branch column
     private void addBranchColumn() {
         TableColumn<Map<String, String>, String> branchColumn = new TableColumn<>("Branch");
@@ -186,80 +174,6 @@ public class TotalSummaryController {
         tableView.getColumns().add(branchColumn);
     }
 
-
-    // 6. Populate table data and calculate product sums
-//    private void populateTableData(Map<String, Map<String, Double>> orderDetails, List<String> productNames,
-//                                   Map<String, Double> productSums) {
-//        for (Map.Entry<String, Map<String, Double>> entry : orderDetails.entrySet()) {
-//            String branchName = entry.getKey();
-//            Map<String, Double> productQuantities = entry.getValue();
-//
-//            Map<String, String> row = new HashMap<>();
-//            row.put("Branch", branchName);
-//
-//            double first6Total = 0.0; // Initialize total for products with IDs 1 to 6
-//
-//            for (int i = 0; i < productNames.size(); i++) {
-//                String productName = productNames.get(i);
-//                Double quantity = productQuantities.getOrDefault(productName, 0.0);
-//
-//                // Format the quantity to show as an integer if it's a whole number, otherwise as a decimal
-//                String formattedQuantity = formatQuantity(quantity);
-//
-//                // Add the formatted quantity for this product to the row
-//                row.put(productName, formattedQuantity);
-//
-//                // Check if the product ID falls in the range 1 to 6
-//                try {
-//                    // Extract numeric ID
-//                    int productId = Integer.parseInt(productName.replaceAll("[^0-9]", ""));
-//                    if (productId >= 1 && productId <= 6) {
-//                        first6Total += quantity; // Add quantity to first6Total
-//                    }
-//                } catch (NumberFormatException e) {
-//                    // Ignore non-numeric product names
-//                }
-//
-//                // Update the product sums
-//                productSums.put(productName, productSums.getOrDefault(productName, 0.0) + quantity);
-//            }
-//
-//            // Add the First 6 Total to the row
-//            row.put("First6Total", formatQuantity(first6Total));
-//            allData.add(row);
-//        }
-//    }
-
-    // 7. Add summary row
-//    private void addSummaryRow(List<String> productNames, Map<String, Double> productSums) {
-//        Map<String, String> summaryRow = new HashMap<>();
-//        summaryRow.put("Branch", "Total");
-//
-//        double first6TotalSummary = 0.0;
-//
-//        for (int i = 0; i < productNames.size(); i++) {
-//            String productName = productNames.get(i);
-//            double productSum = productSums.getOrDefault(productName, 0.0);
-//
-//            summaryRow.put(productName, formatQuantity(productSum));
-//
-//            if (i < 6) {
-//                first6TotalSummary += productSum;
-//            }
-//        }
-//
-//        summaryRow.put("First6Total", formatQuantity(first6TotalSummary));
-//        allData.add(0, summaryRow);
-//    }
-//
-//    // Format quantity
-//    private String formatQuantity(Double quantity) {
-//        if (quantity == quantity.intValue()) {
-//            return String.valueOf(quantity.intValue()); // If it's a whole number, return as an integer
-//        } else {
-//            return String.format("%.1f", quantity); // Otherwise, return as a decimal
-//        }
-//    }
 
     private void addSummaryRow(List<String> productNames, Map<String, Double> productSums) {
         Map<String, String> summaryRow = new HashMap<>();
@@ -334,16 +248,20 @@ public class TotalSummaryController {
             tableView.getItems().add(allData.get(i));
         }
 
+        // Create a label to display the selected date
+        LocalDate selectedDate = datePicker.getValue();
+        Label dateLabel = new Label("Date: " + (selectedDate != null ? selectedDate.toString() : "Not selected"));
+        dateLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 10px;");
+
         // Include the header row for clarity in printing
         VBox container = new VBox();
-        container.getChildren().add(tableView);
+        container.getChildren().addAll(dateLabel, tableView);
 
         tableView.setPrefWidth(1050);  // Adjust the width as needed
-        // Or you can set the min and max width for more flexibility
-        tableView.setMinWidth(1050); // Minimum width
-        tableView.setMaxWidth(1050); // Ma
+        tableView.setMinWidth(1050);   // Minimum width
+        tableView.setMaxWidth(1050);   // Maximum width
 
-        return container; // Return the VBox containing the TableView
+        return container; // Return the VBox containing the date label and TableView
     }
 
     @FXML

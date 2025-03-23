@@ -607,7 +607,8 @@ public class OrderController {
      * Saves the order after validating user inputs and capturing all relevant order details.
      */
     @FXML
-    private int saveOrder(ActionEvent event) {
+    private int
+    saveOrder(ActionEvent event) {
         String username = usernameLabel.getText();
         System.out.println("Username: " + username);
 
