@@ -2,7 +2,7 @@ package com.example.foodordersystem.model;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
-public class Product {
+public class Product extends Order {
 
     private int id;
     private String productCode;
@@ -58,5 +58,9 @@ public class Product {
 
     public BooleanProperty selectedProperty() {
         return selected;
+    }
+
+
+    public void setQuantity(Double aDouble) {
     }
 }

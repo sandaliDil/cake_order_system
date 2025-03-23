@@ -13,14 +13,18 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="418.0" prefWidth="800.0" style="-fx-background-color: #FFFFFF;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.foodordersystem.controller.LoginController">
+<AnchorPane prefHeight="418.0" prefWidth="800.0" style="-fx-background-color: #FFFFFF;"
+            xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.foodordersystem.controller.LoginController">
    <children>
-      <TextField fx:id="usernameField" layoutX="487.0" layoutY="173.0" prefHeight="37.0" prefWidth="274.0" promptText="User Name" style="-fx-background-color: #ffffff; -fx-border-color: #ffffff;">
+      <TextField fx:id="usernameField" layoutX="487.0" layoutY="173.0" prefHeight="37.0"
+                 prefWidth="274.0" promptText="User Name" style="-fx-background-color: #ffffff; -fx-border-color: #ffffff;">
          <font>
             <Font size="14.0" />
          </font>
       </TextField>
-      <PasswordField fx:id="passwordField" layoutX="487.0" layoutY="225.0" prefHeight="38.0" prefWidth="274.0" promptText="Password" style="-fx-background-color: #ffffff; -fx-border-color: #ffffff;">
+      <PasswordField fx:id="passwordField" layoutX="487.0" layoutY="225.0" prefHeight="38.0"
+                     prefWidth="274.0" promptText="Password" style="-fx-background-color: #ffffff; -fx-border-color: #ffffff;">
          <font>
             <Font size="14.0" />
          </font>
@@ -42,7 +46,9 @@
             <Image url="https://img.icons8.com/?size=100&amp;id=7EspPLAJ9gtq&amp;format=png&amp;color=000000" />
          </image>
       </ImageView>
-      <Button fx:id="login" layoutX="498.0" layoutY="302.0" mnemonicParsing="false" onAction="#handleLogin" prefHeight="30.0" prefWidth="238.0" style="-fx-background-color: #27b786; -fx-border-radius: 100%;" text="ඇතුලු වන්න " textFill="WHITE" wrapText="true">
+      <Button fx:id="login" layoutX="498.0" layoutY="302.0" mnemonicParsing="false" onAction="#handleLogin"
+              prefHeight="30.0" prefWidth="238.0" style="-fx-background-color: #27b786; -fx-border-radius: 100%;"
+              text="ඇතුලු වන්න " textFill="WHITE" wrapText="true">
          <font>
             <Font name="Arial Bold Italic" size="15.0" />
          </font>
@@ -50,7 +56,9 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </Button>
-      <Button layoutX="498.0" layoutY="345.0" mnemonicParsing="false" onAction="#handleExitButton" prefHeight="30.0" prefWidth="238.0" style="-fx-background-color: #27b786; -fx-border-radius: 100%;" text="ඉවත් වන්න " textFill="WHITE" wrapText="true">
+      <Button layoutX="498.0" layoutY="345.0" mnemonicParsing="false" onAction="#handleExitButton"
+              prefHeight="30.0" prefWidth="238.0" style="-fx-background-color: #27b786; -fx-border-radius: 100%;"
+              text="ඉවත් වන්න " textFill="WHITE" wrapText="true">
          <font>
             <Font size="15.0" />
          </font>
@@ -62,13 +70,11 @@
          </cursor>
       </Button>
       <ImageView fitHeight="457.0" fitWidth="420.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/welcome_img.png" />
-         </image></ImageView>
-      <ImageView fitHeight="93.0" fitWidth="124.0" layoutX="541.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@image/logo.png" />
-         </image>
+         <Image url="@image/welcome_img.png"/>
+      </ImageView>
+      <ImageView fitHeight="93.0" fitWidth="124.0" layoutX="541.0" layoutY="14.0" pickOnBounds="true"
+                 preserveRatio="true">
+         <Image url="@image/logo.png"/>
       </ImageView>
    </children>
    <effect>

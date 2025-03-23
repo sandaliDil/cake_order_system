@@ -15,10 +15,11 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="printProductDetails" cacheShape="false" centerShape="false" focusTraversable="true" prefHeight="850.0" prefWidth="1369.0" scaleShape="false" style="-fx-background-color: FFFFFF;" stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.foodordersystem.controller.OrderController">
+<AnchorPane fx:id="printProductDetails" cacheShape="false" centerShape="false" focusTraversable="true" prefHeight="804.0" prefWidth="1386.0" scaleShape="false" style="-fx-background-color: FFFFFF;" stylesheets="@css/style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.foodordersystem.controller.OrderController">
    <children>
       <Label layoutX="556.0" layoutY="64.0" prefHeight="32.0" prefWidth="85.0" text="Date     :">
          <font>
@@ -61,6 +62,7 @@
                   <TableColumn fx:id="productNameColumn3" prefWidth="199.19989013671875" />
                </columns>
             </TableView>
+            <ImageView fitHeight="53.0" fitWidth="57.0" layoutX="1080.0" layoutY="22.0" pickOnBounds="true" preserveRatio="true" />
          </children>
       </Pane>
       <ImageView fitHeight="128.0" fitWidth="154.0" layoutX="1210.0" layoutY="644.0" pickOnBounds="true" preserveRatio="true" AnchorPane.rightAnchor="31.0">
@@ -75,7 +77,7 @@
          <font>
             <Font name="System Bold" size="18.0" />
          </font></Button>
-      <Button fx:id="saveOrder" layoutX="1146.0" layoutY="275.0" mnemonicParsing="false" onAction="#printOrder2" prefHeight="46.0" prefWidth="196.0" style="-fx-background-color: #27b786;" text="Print(2)" AnchorPane.leftAnchor="1100.0" AnchorPane.rightAnchor="29.0">
+      <Button fx:id="printOrder2" layoutX="1146.0" layoutY="275.0" mnemonicParsing="false" onAction="#printOrder2" prefHeight="46.0" prefWidth="196.0" style="-fx-background-color: #27b786;" text="Print(2)" AnchorPane.leftAnchor="1100.0" AnchorPane.rightAnchor="29.0">
          <cursor>
             <Cursor fx:constant="HAND" />
          </cursor>
@@ -129,7 +131,7 @@
             <Cursor fx:constant="HAND" />
          </cursor>
       </Button>
-      <Button fx:id="close" contentDisplay="RIGHT" layoutX="1275.0" mnemonicParsing="false" onAction="#closeButton" prefHeight="40.0" prefWidth="46.0" style="-fx-background-color: #D02323;" text="X" textFill="WHITE" AnchorPane.rightAnchor="-26.0">
+      <Button fx:id="close" contentDisplay="RIGHT" layoutX="1346.0" layoutY="1.0" mnemonicParsing="false" onAction="#closeButton" prefHeight="40.0" prefWidth="46.0" style="-fx-background-color: #D02323;" text="X" textFill="WHITE" AnchorPane.rightAnchor="-6.0">
          <font>
             <Font name="System Bold" size="19.0" />
          </font>
@@ -139,8 +141,6 @@
       </Button>
       <ComboBox fx:id="printerComboBox" layoutX="911.0" layoutY="66.0" prefHeight="37.0" prefWidth="168.0" promptText="Select Printer" />
       <Accordion />
-      <TextField fx:id="searchOrderIdField" layoutX="1124.0" layoutY="174.0" prefHeight="37.0" prefWidth="97.0" />
-      <Button fx:id="searchOrderButton" layoutX="1225.0" layoutY="177.0" mnemonicParsing="false" onAction="#searchOrderButton" prefHeight="32.0" prefWidth="85.0" text="Search" />
       <Label fx:id="totalQuantityLabel" layoutX="1119.0" layoutY="545.0" prefHeight="93.0" prefWidth="212.0" textFill="#054620">
          <font>
             <Font name="System Bold" size="29.0" />
@@ -155,7 +155,7 @@
             <Font name="System Bold" size="18.0" />
          </font>
       </Button>
-      <TextField layoutX="-4.0" layoutY="1.0" prefHeight="39.0" prefWidth="1328.0" promptText="Wsana Bakers " style="-fx-background-color: #27b786;" text="                                                                                                           Wasana Bakers (PVT) LTD                                     ">
+      <TextField layoutX="-4.0" layoutY="1.0" prefHeight="39.0" prefWidth="1313.0" promptText="Wsana Bakers " style="-fx-background-color: #27b786;" text="                                                                                                           Wasana Bakers (PVT) LTD                                     ">
          <font>
             <Font name="System Bold" size="18.0" />
          </font>
@@ -165,14 +165,14 @@
             <Image url="@image/user.png" />
          </image>
       </ImageView>
-      <ImageView fitHeight="37.0" fitWidth="37.0" layoutX="1139.0" layoutY="226.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="37.0" fitWidth="46.0" layoutX="1121.0" layoutY="173.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@image/print-removebg-preview.png" />
+            <Image url="@image/ " />
          </image>
       </ImageView>
       <ImageView fitHeight="37.0" fitWidth="40.0" layoutX="1139.0" layoutY="280.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@image/print-removebg-preview.png" />
+            <Image url="@image/ " />
          </image>
       </ImageView>
       <Button fx:id="connectButton1" layoutX="1126.0" layoutY="435.0" mnemonicParsing="false" onAction="#summaryGenerate" prefHeight="46.0" prefWidth="196.0" style="-fx-background-color: #27b786;" text="Bill Generate" textAlignment="JUSTIFY" AnchorPane.leftAnchor="1100.0" AnchorPane.rightAnchor="29.0">
@@ -207,6 +207,30 @@
             <Image url="@image/paper.png" />
          </image>
       </ImageView>
+      <AnchorPane fx:id="notificationBar" layoutX="0" layoutY="0" prefHeight="50" prefWidth="310" style="-fx-background-color: #ff5733; -fx-padding: 10px; -fx-border-radius: 10px; -fx-background-radius: 10px;" visible="false">
+         <Label fx:id="notificationLabel" layoutX="10" layoutY="10" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" text="Pending Orders: 0" />
+         <Button fx:id="closeNotificationBtn" layoutX="300" layoutY="10" style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-weight: bold;" text="X" />
+      </AnchorPane>
+      <CheckBox fx:id="morning" layoutX="1243.0" layoutY="55.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="103.0" text="Morning">
+         <font>
+            <Font name="System Bold" size="15.0" />
+         </font>
+      </CheckBox>
+      <CheckBox fx:id="afternoon" layoutX="1243.0" layoutY="93.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="103.0" text="Afternoon">
+         <font>
+            <Font name="System Bold" size="15.0" />
+         </font>
+      </CheckBox>
+      <StackPane fx:id="notificationContainer" layoutX="21.0" layoutY="13.0" prefHeight="53.0" prefWidth="71.0" />
+      <Button fx:id="saveOrder" layoutX="1119.0" layoutY="168.0" mnemonicParsing="false" onAction="#saveOrder" prefHeight="46.0" prefWidth="196.0" style="-fx-background-color: #27b786; -fx-background-radius: 5px;" text="Save">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+         <font>
+            <Font name="System Bold" size="18.0" />
+         </font>
+      </Button>
+      <ImageView fitHeight="46.0" fitWidth="46.0" layoutX="1131.0" layoutY="169.0" pickOnBounds="true" preserveRatio="true" />
 
    </children>
    <opaqueInsets>

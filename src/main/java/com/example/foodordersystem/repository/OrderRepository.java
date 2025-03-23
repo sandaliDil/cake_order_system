@@ -10,6 +10,8 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.*;
 
+import static com.example.foodordersystem.repository.OrderProductRepository.*;
+
 public class OrderRepository {
 
     /**
@@ -19,7 +21,7 @@ public class OrderRepository {
      * @return The generated order ID, or -1 if saving failed.
      */
     public int saveOrder(Order order) {
-        String orderQuery = "INSERT INTO Orders (user_id, branch_id, order_date, `option`) VALUES (?, ?, ?, ?)";
+        String orderQuery = "INSERT INTO Orders (user_id, branch_id, order_date, `option`, status, time_range) VALUES (?, ?, ?, ?, ?, ?)";
         String orderItemQuery = "INSERT INTO OrderItem (order_id, product_id, quantity) VALUES (?, ?, ?)";
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection()) {
@@ -31,6 +33,8 @@ public class OrderRepository {
                 orderStatement.setInt(2, order.getBranchId());
                 orderStatement.setDate(3, Date.valueOf(order.getOrderDate()));
                 orderStatement.setString(4, order.getOption());
+                orderStatement.setBoolean(5, order.isStatus(true)); // Add status field
+                orderStatement.setString(6, order.getTimeRange()); // Add time_range field
 
                 int rowsAffected = orderStatement.executeUpdate();
                 if (rowsAffected > 0) {
@@ -57,6 +61,8 @@ public class OrderRepository {
         return -1; // Return -1 on failure
     }
 
+
+
     /**
      * Helper method to save order items.
      */
@@ -70,6 +76,66 @@ public class OrderRepository {
             }
             statement.executeBatch();
         }
+    }
+
+    public boolean updateOrder(Order order) {
+        String updateOrderQuery = "UPDATE Orders SET user_id = ?, branch_id = ?, order_date = ?, `option` = ?, status = ?, time_range = ? WHERE id = ?";
+        String deleteOrderItemsQuery = "DELETE FROM OrderItem WHERE order_id = ?";
+        String insertOrderItemQuery = "INSERT INTO OrderItem (order_id, product_id, quantity) VALUES (?, ?, ?)";
+
+        try (Connection connection = DatabaseConnection.getInstance().getConnection()) {
+            connection.setAutoCommit(false); // Start transaction
+
+            // Update the order details
+            try (PreparedStatement orderStatement = connection.prepareStatement(updateOrderQuery)) {
+                orderStatement.setInt(1, order.getUserId());
+                orderStatement.setInt(2, order.getBranchId());
+                orderStatement.setDate(3, Date.valueOf(order.getOrderDate()));
+                orderStatement.setString(4, order.getOption());
+                orderStatement.setBoolean(5, order.isStatus(true));
+                orderStatement.setString(6, order.getTimeRange());
+                orderStatement.setInt(7, order.getId());
+
+                int rowsAffected = orderStatement.executeUpdate();
+                if (rowsAffected == 0) {
+                    connection.rollback(); // Rollback if no order is updated
+                    return false;
+                }
+            }
+
+            // Delete existing order items
+            try (PreparedStatement deleteStatement = connection.prepareStatement(deleteOrderItemsQuery)) {
+                deleteStatement.setInt(1, order.getId());
+                deleteStatement.executeUpdate();
+            }
+
+            // Insert updated order items
+            saveOrderItems(insertOrderItemQuery, connection, order.getId(), order.getItems());
+
+            connection.commit(); // Commit transaction
+            return true;
+        } catch (SQLException e) {
+            logError("Error updating order", e);
+            return false;
+        }
+    }
+
+
+    public boolean checkOrderExistsInLastHour(int branchId) {
+        String query = "SELECT COUNT(*) FROM Orders WHERE branch_id = ? AND order_time >= NOW() - INTERVAL 1 HOUR";
+
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, branchId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            logError("Database error while checking for recent orders", e);
+        }
+        return false;
     }
 
     /**
@@ -207,7 +273,9 @@ public class OrderRepository {
                         resultSet.getInt("user_id"),
                         resultSet.getString("userName"),
                         resultSet.getDate("order_date").toLocalDate(),
+                resultSet.getDate("order_date").toLocalDate(),
                 resultSet.getString("option"),
+                resultSet.getString("time_range"),
                 resultSet.getBoolean("status")
                 );
     }
@@ -267,7 +335,7 @@ public class OrderRepository {
 
     public Map<String, Map<String, Double>> getOrderDetailsByDateAndOption(LocalDate date, String option) {
         // SQL query with added ORDER BY for product_id
-        String query = "SELECT b.branch_name, p.product_name, SUM(oi.quantity) AS total_quantity " +
+        String query = "SELECT b.branch_name, o.id, p.product_name, SUM(oi.quantity) AS total_quantity " +
                 "FROM Orders o " +
                 "JOIN OrderItem oi ON o.id = oi.order_id " +
                 "JOIN products p ON oi.product_id = p.id " +
@@ -334,8 +402,7 @@ public class OrderRepository {
                 order.setId(resultSet.getInt("id"));
                 order.setBranchId(resultSet.getInt("branch_id"));
                 order.setUserId(resultSet.getInt("user_id"));
-                order.setUserName(resultSet.getString("user_name"));
-                order.setOrderDate(resultSet.getDate("order_date").toLocalDate());
+                order.setOrderDate(resultSet.getDate("order_date").toLocalDate().atStartOfDay());
                 order.setOption(resultSet.getString("option"));
 
                 orderList.add(order);
@@ -355,7 +422,7 @@ public class OrderRepository {
      * @return The order object if found, otherwise null.
      */
     public Order getOrderById(int orderId) {
-        String query = "SELECT o.id, o.user_id, u.userName, o.branch_id, o.order_date, o.option " +
+        String query = "SELECT o.id, o.user_id, u.userName, o.branch_id, o.order_date, o.option, o.status, o.time_range " +
                 "FROM Orders o JOIN users u ON o.user_id = u.id " +
                 "WHERE o.id = ?";
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
@@ -373,22 +440,25 @@ public class OrderRepository {
         return null; // Return null if the order is not found or an error occurs.
     }
 
-    public boolean checkOrderExists(int branchId, LocalDate orderDate) {
-        String query = "SELECT COUNT(*) FROM Orders WHERE branch_id = ? AND order_date = ?";
+    public boolean checkOrderExists(int branchId, LocalDate orderDate, String timeRange) {
+        String query = "SELECT COUNT(*) FROM Orders WHERE branch_id = ? AND order_date = ? AND time_range = ?";
+
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, branchId);
-            preparedStatement.setDate(2, java.sql.Date.valueOf(orderDate));  // Convert LocalDate to SQL Date
 
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                int count = resultSet.getInt(1);
-                return count > 0;  // If count > 0, an order exists
+            preparedStatement.setInt(1, branchId);
+            preparedStatement.setDate(2, Date.valueOf(orderDate)); // Convert LocalDate to SQL Date
+            preparedStatement.setString(3, timeRange); // Check for the specific time range
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) > 0; // If count > 0, an order exists
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();  // Handle the exception as per your needs
+            logError("Error checking order existence", e);
         }
-        return false;  // Return false if no order exists
+        return false; // Return false if no order exists
     }
 
     // Assuming you are using a database or an in-memory storage.
@@ -414,8 +484,7 @@ public class OrderRepository {
             // Existing order, update it
             existingOrder.setBranchId(order.getBranchId());
             existingOrder.setUserId(order.getUserId());
-            existingOrder.setUserName(order.getUserName());
-            existingOrder.setOrderDate(order.getOrderDate());
+          //  existingOrder.setOrderDate(order.getOrderDate());
             existingOrder.setOption(order.getOption());
 
             // Update the OrderProducts for the existing order
@@ -448,5 +517,82 @@ public class OrderRepository {
         }
         return null;
     }
+
+    public int countPendingOrders() {
+        String query = "SELECT COUNT(*) FROM Orders WHERE status = 0";
+
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement statement = connection.prepareStatement(query);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error counting pending orders: " + e.getMessage());
+        }
+        return 0; // Return 0 if an error occurs
+    }
+
+
+
+
+    public List<OrderProduct> getProductsForOrder(int orderId) {
+        List<OrderProduct> orderProducts = new ArrayList<>();
+        String query = "SELECT p.id, p.product_name, op.quantity FROM OrderItem op " +
+                "JOIN products p ON op.product_id = p.id WHERE op.order_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setInt(1, orderId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int productId = rs.getInt("id");
+                double quantity = rs.getDouble("quantity");
+
+                OrderProduct orderProduct = new OrderProduct(orderId, quantity, productId);
+                orderProducts.add(orderProduct);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return orderProducts;
+    }
+
+    public boolean updateStatusAndOption(int orderId, int status, String option) {
+        String updateQuery = "UPDATE Orders SET status = ?, `option` = ? WHERE id = ?";
+
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement statement = connection.prepareStatement(updateQuery)) {
+            statement.setInt(1, status);
+            statement.setString(2, option);
+            statement.setInt(3, orderId);
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public void updateOrderProductQuantity(int orderId, int productId, double quantity) throws SQLException {
+        String query = "UPDATE order_product SET quantity = ? WHERE order_id = ? AND product_id = ?";
+
+        try(Connection connection = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement statement = connection.prepareStatement(query)){
+            statement.setDouble(1, quantity);
+            statement.setInt(2, orderId);
+            statement.setInt(3, productId);
+
+            int rowsUpdated = statement.executeUpdate();
+            System.out.println(rowsUpdated + " row(s) updated.");
+        }
+    }
+
+
+
 
 }

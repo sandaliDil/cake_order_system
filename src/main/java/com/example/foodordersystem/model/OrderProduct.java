@@ -12,6 +12,10 @@ public class OrderProduct {
     }
 
     public OrderProduct() {
+
+    }
+
+    public OrderProduct(int productId, double quantity) {
     }
 
     public int getProductId() {
@@ -37,4 +41,5 @@ public class OrderProduct {
     public void setOrderId(int orderId) {
         this.orderId = orderId;
     }
+
 }

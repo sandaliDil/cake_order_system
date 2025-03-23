@@ -45,6 +45,7 @@ public class BranchController {
     private TableColumn<Branch, Void> actionColumn;
 
     private final BranchService branchService = new BranchService();
+
     private ObservableList<Branch> branchList = FXCollections.observableArrayList();
 
     @FXML
@@ -87,7 +88,6 @@ public class BranchController {
             {
                 actionBox.setSpacing(10); // Add spacing between buttons
                 actionBox.setAlignment(Pos.CENTER); // Center the buttons within the HBox
-
 
                 // Edit Button Action
                 editButton.setOnAction(event -> onEditButtonClicked(getTableView().getItems().get(getIndex())));
@@ -207,7 +207,8 @@ public class BranchController {
         branchCodeField.clear();
     }
 
-    private void showAlert(Alert.AlertType alertType, String title, String message) {
+    private void showAlert(Alert.AlertType alertType, String title, String message)
+    {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
         alert.setHeaderText(null);

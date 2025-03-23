@@ -105,6 +105,7 @@ public class LoginController {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/foodordersystem/Dashboard.fxml"));
             Parent root = fxmlLoader.load();
+
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.setMaximized(true);

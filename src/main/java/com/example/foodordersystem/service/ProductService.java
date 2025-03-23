@@ -53,5 +53,4 @@ public class ProductService {
     public int getProductCount() {
         return productRepository.getProductCount();
     }
-
 }

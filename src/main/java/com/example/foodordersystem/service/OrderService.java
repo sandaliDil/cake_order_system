@@ -1,13 +1,16 @@
 package com.example.foodordersystem.service;
 
-import com.example.foodordersystem.model.Order;
-import com.example.foodordersystem.model.Product;
+import com.example.foodordersystem.database.DatabaseConnection;
+import com.example.foodordersystem.model.*;
+import com.example.foodordersystem.repository.BranchRepository;
 import com.example.foodordersystem.repository.OrderRepository;
+import com.example.foodordersystem.repository.UserRepository;
 
+import java.sql.*;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 public class OrderService {
@@ -20,6 +23,10 @@ public class OrderService {
 
     public int saveOrder(Order order) {
         return orderRepository.saveOrder(order);
+    }
+
+    public boolean updateOrder(Order order) {
+        return orderRepository.updateOrder(order);
     }
 
     public int getOrderCount() {
@@ -38,9 +45,10 @@ public class OrderService {
         return orderRepository.getAllOrders();
     }
 
-    public boolean checkOrderExists(int branchId, LocalDate orderDate) {
-        return orderRepository.checkOrderExists(branchId, orderDate);
+    public boolean checkOrderExists(int branchId, LocalDate orderDate, String timeRange) {
+        return orderRepository.checkOrderExists(branchId, orderDate, timeRange);
     }
+
 
     /**
      * Searches for orders by their ID.
@@ -55,4 +63,11 @@ public class OrderService {
     public Order getOrderById(int orderId) {
         return orderRepository.getOrderById(orderId);
     }
+
+    public boolean updateOrderStatusAndOption(int orderId, int status, String option) {
+        return orderRepository.updateStatusAndOption(orderId, status, option);
+    }
+
+
+
 }
