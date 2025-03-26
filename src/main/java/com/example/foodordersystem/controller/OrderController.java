@@ -8,6 +8,7 @@ import com.example.foodordersystem.service.BranchService;
 import com.example.foodordersystem.service.OrderService;
 import com.example.foodordersystem.service.ProductService;
 
+import com.example.foodordersystem.util.PrintLogger;
 import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -41,15 +42,11 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.logging.Logger;
-import static kotlin.text.Typography.nbsp;
+
+
 
 
 public class OrderController {
@@ -763,209 +760,106 @@ public class OrderController {
         StringBuilder firstPageContent = new StringBuilder();
         StringBuilder secondPageContent = new StringBuilder();
 
-        String selectedTime = null;
-        if (morning.isSelected()) {
-            selectedTime = "Morning";
-        } else if (afternoon.isSelected()) {
-            selectedTime = "Afternoon";
-        }
-
-        // Get user details
+        String selectedTime = morning.isSelected() ? "Morning" : afternoon.isSelected() ? "Afternoon" : "N/A";
         String username = usernameLabel.getText();
         String orderDate = orderDatePicker.getValue().toString();
-        String selectedBranchName = branchComboBox.getValue();
+        String selectedBranchName = branchComboBox.getValue() != null ? branchComboBox.getValue() : "N/A";
 
-        // Build the first page (Narrow paper size)
-        firstPageContent.append("<html>")
-                .append("<head>")
-                .append("<meta charset=\"UTF-8\">")
-                .append("<title>Order Summary</title>")
-                .append("<style>")
-                .append("@page { size: auto; margin: 10px; }")
-                .append("body { font-family: Arial, sans-serif; margin: 0; padding: 5px; font-size: 10px; " +
-                        "width: 13cm; height: 40cm; }")
-                .append("h2 { text-align: center; font-size: 16px; margin: 5px 0; }")
-                .append(".order-details { margin: 10px 0; }")
-                .append("table { width: 37%; border-collapse: collapse; }")
-                .append("th, td { text-align: center; border: 1px solid #000; text-align: left; " +
-                        "padding: 5px; font-size: 10px; }")
-                .append("td.qty { text-align: center; width: 50px; }")
-                .append("th { background-color: #f2f2f2; }")
-                .append("</style>")
-                .append("</head>")
-                .append("<body>")
-                .append("<div><strong>Order ID:</strong> ").append(orderId).append("</div>")
-                .append("<div><strong>User:</strong> ").append(username).append("</div>")
-                .append("<div><strong>Date:</strong> ").append(orderDate).append("&nbsp;&nbsp;(").append(selectedTime != null ? selectedTime : "N/A").append(")").append("</div>")
-                .append("<div style='font-size: 12px;'>")
-                .append(selectedBranchName != null ? "<strong>" + selectedBranchName + "</strong>" :
-                        "<strong>N/A</strong>")
-                .append("</div>")
-                .append("<table>")
-                .append("<thead>")
-                .append("</thead>")
-                .append("<tbody>");
+// Common HTML header and style
+        String commonHeader = "<html><head><meta charset='UTF-8'><title>Order Summary</title>"
+                + "<style>@page { size: auto; margin: 10px; }"
+                + "body { font-family: Arial, sans-serif; margin: 0; padding: 5px; font-size: 10px; width: 13cm; height: 40cm; }"
+                + "h2 { text-align: center; font-size: 16px; margin: 5px 0; }"
+                + ".order-details { margin: 10px 0; }"
+                + "table { width: 37%; border-collapse: collapse; }"
+                + "th, td { text-align: left; border: 1px solid #000; padding: 5px; font-size: 10px; }"
+                + "td.qty { text-align: center; width: 50px; }"
+                + "th { background-color: #f2f2f2; }" + "</style></head><body>";
 
-        // Gather products from all tables
+// Generate order details
+        String orderDetails = "<div><strong>Order ID:</strong> " + orderId + "</div>"
+                + "<div><strong>User:</strong> " + username + "</div>"
+                + "<div><strong>Date:</strong> " + orderDate + " (" + selectedTime + ")</div>"
+                + "<div style='font-size: 12px;'><strong>" + selectedBranchName + "</strong></div>"
+                + "<table><thead></thead><tbody>";
+
+// Collect products
         List<Product> allProducts = new ArrayList<>();
         allProducts.addAll(productTable1.getItems());
         allProducts.addAll(productTable2.getItems());
         allProducts.addAll(productTable3.getItems());
 
-        // First 6 products
+// First page products
+        firstPageContent.append(commonHeader).append(orderDetails);
         double totalQuantityFirst6 = 0;
         for (int i = 0; i < Math.min(7, allProducts.size()); i++) {
             Product product = allProducts.get(i);
             double quantity = getQuantityFromCell(product);
             totalQuantityFirst6 += quantity;
-
-            firstPageContent.append("<tr>")
-                    .append("<td>").append(product.getProductName()).append("</td>")
-                    .append("<td class='qty'>").append(formatQuantity(quantity));
-            if (product.isSelected()) {
-                firstPageContent.append("(Order)");
-            }
-            firstPageContent .append("</td>")
-                            .append("</tr>");
+            firstPageContent.append("<tr><td>").append(product.getProductName()).append("</td>")
+                    .append("<td class='qty'>").append(formatQuantity(quantity))
+                    .append(product.isSelected() ? " (Order)" : "").append("</td></tr>");
         }
-
-        // Add total for the first 6 products
-        firstPageContent.append("<tr>")
-                .append("<td><strong>තැ ටි ගණන </strong></td>")
-                .append("<td class='qty'><strong>").append(formatQuantityForTotal(totalQuantityFirst6)).
-                append("</strong></td>")
-                .append("</tr>")
+        firstPageContent.append("<tr><td><strong>තැ ටි ගණන </strong></td><td class='qty'><strong>")
+                .append(formatQuantityForTotal(totalQuantityFirst6)).append("</strong></td></tr>")
                 .append("<tr><td colspan='2' style='height: 12px;'></td></tr>");
 
-        // Remaining products
+// Remaining products
         if (allProducts.size() > 7) {
             for (int i = 7; i < allProducts.size(); i++) {
                 Product product = allProducts.get(i);
                 double quantity = getQuantityFromCell(product);
-
-                firstPageContent.append("<tr>")
-                        .append("<td>").append(product.getProductName()).append("</td>")
-                        .append("<td class='qty'>").append(formatQuantity(quantity));
-
-                // Add "Kg" for the first product on the second page and "Order" if selected
-                if (i == 7 && quantity > 0) {
-                    firstPageContent.append(" Kg");
-                }
-                if (product.isSelected()) {
-                    firstPageContent.append("(Order)");
-                }
-
-                firstPageContent.append("</td>")
-                        .append("</tr>");
-
-                // Add spacing after the 16th product
+                firstPageContent.append("<tr><td>").append(product.getProductName()).append("</td>")
+                        .append("<td class='qty'>").append(formatQuantity(quantity))
+                        .append(i == 7 && quantity > 0 ? " Kg" : "")
+                        .append(product.isSelected() ? " (Order)" : "").append("</td></tr>");
                 if (i == 16) {
                     firstPageContent.append("<tr><td colspan='2' style='height: 12px;'></td></tr>");
                 }
             }
         }
-        firstPageContent.append("</tbody>")
-                .append("</table>")
-                .append("</body>")
-                .append("</html>");
+        firstPageContent.append("</tbody></table></body></html>");
 
-        // Second page content
-        secondPageContent.append("<html>")
-                .append("<head>")
-                .append("<meta charset=\"UTF-8\">")
-                .append("<title>Order Summary</title>")
-                .append("<style>")
-                .append("@page { size: auto; margin: 10px; }")
-                .append("body { font-family: Arial, sans-serif; margin: 0; padding: 5px; font-size: 10px;" +
-                        " width: 13cm; height: 40cm; }")
-                .append("h2 { text-align: center; font-size: 16px; margin: 5px 0; }")
-                .append(".order-details { margin: 10px 0; }")
-                .append("table { width: 37%; border-collapse: collapse; }")
-                .append("th, td { text-align: center; border: 1px solid #000; text-align: left; padding: 5px;" +
-                        " font-size: 10px; }")
-                .append("td.qty { text-align: center; width: 50px; }")
-                .append("th { background-color: #f2f2f2; }")
-                .append("</style>")
-                .append("</head>")
-                .append("<body>")
-                .append("<div><strong>Order ID:</strong> ").append(orderId).append("</div>")
-                .append("<div><strong>User:</strong> ").append(username).append("</div>")
-                .append("<div><strong>Date:</strong> ").append(orderDate).append("&nbsp;&nbsp;(").append(selectedTime != null ? selectedTime : "N/A").append(")").append("</div>")
-                .append("<div style='font-size: 12px;'>")
-                .append(selectedBranchName != null ? "<strong>" + selectedBranchName + "</strong>" :
-                        "<strong>N/A</strong>")
-                .append("</div>")
-                .append("<table>")
-                .append("<thead>")
-                .append("</thead>")
-                .append("<tbody>");
-
-        List<Integer> selectedIndices = List.of(9, 10, 11, 19, 12, 15, 16, 17, 18, 14, 7,13, 8, 20, 21);
+// Second page products
+        secondPageContent.append(commonHeader).append(orderDetails);
+        List<Integer> selectedIndices = List.of(9, 10, 11, 19, 12, 15, 16, 17, 18, 14, 7, 13, 8, 20, 21);
         for (int i : selectedIndices) {
             if (i < allProducts.size()) {
                 Product product = allProducts.get(i);
                 double quantity = getQuantityFromCell(product);
-
-                secondPageContent.append("<tr>")
-                        .append("<td>").append(product.getProductName()).append("</td>");
-
-                // Specific handling for index 7
-                if (i == 7 && quantity > 0) {
-                    secondPageContent.append("<td class='qty'>").append(formatQuantity(quantity)).append(" Kg");
-                    if (product.isSelected()) {
-                        secondPageContent.append("(Order)");
-                    }
-                    secondPageContent.append("</td>");
-                } else {
-                    secondPageContent.append("<td class='qty'>").append(formatQuantity(quantity));
-                    if (product.isSelected()) {
-                        secondPageContent.append("(Order)");
-                    }
-                    secondPageContent.append("</td>");
-                }
-                secondPageContent.append("</tr>");
+                secondPageContent.append("<tr><td>").append(product.getProductName()).append("</td>")
+                        .append("<td class='qty'>").append(formatQuantity(quantity))
+                        .append(i == 7 && quantity > 0 ? " Kg" : "")
+                        .append(product.isSelected() ? " (Order)" : "").append("</td></tr>");
             }
         }
-        secondPageContent.append("</tbody>")
-                .append("</table>")
-                .append("</body>")
-                .append("</html>");
+        secondPageContent.append("</tbody></table></body></html>");
 
-
-            // Get selected printer from ComboBox
-            String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
-
-            if (selectedPrinterName != null && !selectedPrinterName.isEmpty()) {
-                Printer selectedPrinter = Printer.getAllPrinters()
-                        .stream()
-                        .filter(p -> p.getName().equalsIgnoreCase(selectedPrinterName))
-                        .findFirst()
-                        .orElse(null);
-
-                if (selectedPrinter != null) {
-
-                    System.out.println("Printing on printer: " + selectedPrinter.getName());
-                    try {
-                        synchronized (this) {
-                            printHTML1(secondPageContent.toString(), printerComboBox);
-                            System.out.println("xxx" + printerComboBox);
-                            System.out.println("i hate u "+secondPageContent);
-                            printHTML(firstPageContent.toString(), 4, printerComboBox);
-                            System.out.println("xxx1" + printerComboBox);
-                            System.out.println("fuq" + firstPageContent);
-                            System.out.println("Print job completed successfully.");
-                        }
-                    } catch (Exception e) {
-                        System.out.println("Error during printing: " + e.getMessage());
-                        e.printStackTrace();
+// Print logic
+        String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
+        if (selectedPrinterName != null && !selectedPrinterName.isEmpty()) {
+            Printer selectedPrinter = Printer.getAllPrinters().stream()
+                    .filter(p -> p.getName().equalsIgnoreCase(selectedPrinterName))
+                    .findFirst().orElse(null);
+            if (selectedPrinter != null) {
+                System.out.println("Printing on printer: " + selectedPrinter.getName());
+                try {
+                    synchronized (this) {
+                        printHTML1(secondPageContent.toString(), printerComboBox);
+                        System.out.println("Print01 job completed successfully.");
+                        printHTML(firstPageContent.toString(), 4, printerComboBox);
+                        System.out.println("Print job completed successfully.");
                     }
-                } else {
-                    System.out.println("Printer not found: " + selectedPrinterName);
+                } catch (Exception e) {
+                    System.out.println("Error during printing: " + e.getMessage());
+                    e.printStackTrace();
                 }
             } else {
-                System.out.println("No printer selected.");
+                System.out.println("Printer not found: " + selectedPrinterName);
             }
-
+        } else {
+            System.out.println("No printer selected.");
+        }
     }
 
     private void printHTML1(String secondPageContent, ComboBox<String> printerComboBox) {
@@ -973,119 +867,96 @@ public class OrderController {
         WebEngine webEngine = webView.getEngine();
         webEngine.loadContent(secondPageContent);
 
-        System.out.println(secondPageContent);
-
-
-
-        // Wait until content is fully loaded
-        webEngine.getLoadWorker().stateProperty().addListener((observable, oldState,
-                                                               newState) -> {
+        webEngine.getLoadWorker().stateProperty().addListener((observable, oldState, newState) -> {
             if (newState == Worker.State.SUCCEEDED) {
-                // Get content height dynamically
-//                double contentHeight = Double.parseDouble(webEngine.executeScript("document.body.scrollHeight")
-//                        .toString());
+                Platform.runLater(() -> {
+                    String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
+                    if (selectedPrinterName == null || selectedPrinterName.isEmpty()) {
+                        PrintLogger.logError("No printer selected.", null);
+                        return;
+                    }
 
-                // Get the selected printer name from the ComboBox
-                String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
-                if (selectedPrinterName == null || selectedPrinterName.isEmpty()) {
-                    System.out.println("No printer selected.");
-                    return;
-                }
+                    Printer printer = Printer.getAllPrinters().stream()
+                            .filter(p -> p.getName().equalsIgnoreCase(selectedPrinterName))
+                            .findFirst()
+                            .orElse(null);
 
-                // Find the selected printer by name
-                Printer printer = Printer.getAllPrinters()
-                        .stream()
-                        .filter(p -> p.getName().equalsIgnoreCase(selectedPrinterName)) // Match selected printer name
-                        .findFirst()
-                        .orElse(null);
+                    if (printer == null) {
+                        PrintLogger.logError("Printer not found: " + selectedPrinterName, null);
+                        return;
+                    }
 
-                if (printer == null) {
-                    System.out.println("Printer not found: " + selectedPrinterName);
-                    return;
-                }
+                    PrinterJob printerJob = PrinterJob.createPrinterJob(printer);
+                    if (printerJob == null) {
+                        PrintLogger.logError("Failed to create printer job.", null);
+                        return;
+                    }
 
-
-                PrinterJob printerJob = PrinterJob.createPrinterJob(printer);
-                if (printerJob != null) {
-                    // Set custom page size and orientation
-                    PageLayout pageLayout = printer.createPageLayout(
-                            Paper.A4, PageOrientation.PORTRAIT, 10, 10, 10, 10
-                    );
-
-                    // Check if content fits on the page and print
+                    PageLayout pageLayout = printer.createPageLayout(Paper.A4, PageOrientation.PORTRAIT, 10, 10, 10, 10);
                     boolean printed = printerJob.printPage(pageLayout, webView);
+
                     if (printed) {
                         printerJob.endJob();
-                        System.out.println("Printed successfully.");
+                        PrintLogger.logInfo("Printed successfully on printer: " + selectedPrinterName);
                     } else {
-                        System.out.println("Print job failed.");
+                        PrintLogger.logError("Print job failed on printer: " + selectedPrinterName, null);
                     }
-                } else {
-                    System.out.println("Failed to create printer job.");
-                }
+                });
             }
         });
     }
 
 
-    private void printHTML(String firstPageContent, int pageCount, ComboBox<String> printerComboBox) {
-
+    private void printHTML(String htmlContent, int pageCount, ComboBox<String> printerComboBox) {
         WebView webView = new WebView();
         WebEngine webEngine = webView.getEngine();
-        webEngine.loadContent(firstPageContent);
+        webEngine.loadContent(htmlContent);
 
-        // Wait until content is fully loaded
-        webEngine.getLoadWorker().stateProperty().addListener((observable, oldState,
-                                                               newState) -> {
+        webEngine.getLoadWorker().stateProperty().addListener((observable, oldState, newState) -> {
             if (newState == Worker.State.SUCCEEDED) {
+                Platform.runLater(() -> {
+                    String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
+                    if (selectedPrinterName == null || selectedPrinterName.isEmpty()) {
+                        PrintLogger.logError("No printer selected.", null);
+                        return;
+                    }
 
-                double contentHeight = Double.parseDouble(webEngine.executeScript("document.body.scrollHeight")
-                        .toString());
+                    Printer printer = Printer.getAllPrinters().stream()
+                            .filter(p -> p.getName().equalsIgnoreCase(selectedPrinterName))
+                            .findFirst()
+                            .orElse(null);
 
+                    if (printer == null) {
+                        PrintLogger.logError("Printer not found: " + selectedPrinterName, null);
+                        return;
+                    }
 
-                // Get the selected printer name from the ComboBox
-                String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
-                if (selectedPrinterName == null || selectedPrinterName.isEmpty()) {
-                    System.out.println("No printer selected.");
-                    return;
-                }
-
-                // Find the selected printer by name
-                Printer printer = Printer.getAllPrinters()
-                        .stream()
-                        .filter(p -> p.getName().equalsIgnoreCase(selectedPrinterName))
-                        .findFirst()
-                        .orElse(null);
-
-                if (printer == null) {
-                    System.out.println("Printer not found: " + selectedPrinterName);
-                    return;
-                }
-
-                // Print the content for each page (based on pageCount)
-                for (int i = 0; i < pageCount; i++) {
                     PrinterJob printerJob = PrinterJob.createPrinterJob(printer);
-                    if (printerJob != null) {
+                    if (printerJob == null) {
+                        PrintLogger.logError("Failed to create printer job.", null);
+                        return;
+                    }
 
-                        // Set default page size and orientation
-                        PageLayout pageLayout = printer.createPageLayout(
-                                Paper.A4, PageOrientation.PORTRAIT, 10, 10, 10, 10
-                        );
+                    PageLayout pageLayout = printer.createPageLayout(Paper.A4, PageOrientation.PORTRAIT, 10, 10, 10, 10);
+                    int successCount = 0;
 
-                        // Print the WebView content
+                    for (int i = 0; i < pageCount; i++) {
                         boolean printed = printerJob.printPage(pageLayout, webView);
                         if (printed) {
-                            printerJob.endJob();
-                            System.out.println("Printed page " + (i + 1) + " of " + pageCount);
+                            successCount++;
+                            PrintLogger.logInfo("Printed page " + (i + 1) + " of " + pageCount + " on printer: " + selectedPrinterName);
                         } else {
-                            System.out.println("Print job failed for page " + (i + 1));
+                            PrintLogger.logError("Print job failed for page " + (i + 1) + " on printer: " + selectedPrinterName, null);
                         }
-                    } else {
-                        System.out.println("Failed to create printer job.");
                     }
-                }
-            } else {
-                System.out.println("Web content failed to load.");
+
+                    if (successCount > 0) {
+                        printerJob.endJob();
+                        PrintLogger.logInfo("Print job completed successfully. Total pages printed: " + successCount);
+                    } else {
+                        PrintLogger.logError("No pages were printed successfully.", null);
+                    }
+                });
             }
         });
     }
@@ -1105,7 +976,6 @@ public class OrderController {
             return String.format("%.1f", totalQuantityFirst6); // Display as decimal with two places
         }
     }
-
 
     @FXML
     private void printOrderSummary2() {
@@ -1261,7 +1131,8 @@ public class OrderController {
                 .append("</head>")
                 .append("<body>")
                 .append("<div><strong>User:</strong> ").append(username).append("</div>")
-                .append("<div><strong>Date:</strong> ").append(orderDate).append("&nbsp;&nbsp;(").append(selectedTime != null ? selectedTime : "N/A").append(")").append("</div>")
+                .append("<div><strong>Date:</strong> ").append(orderDate).append("&nbsp;&nbsp;(").append(selectedTime != null ?
+                        selectedTime : "N/A").append(")").append("</div>")
                 .append("<div style='font-size: 12px;'>")
                 .append(selectedBranchName != null ? "<strong>" + selectedBranchName + "</strong>" :
                         "<strong>N/A</strong>")
@@ -1365,8 +1236,6 @@ public class OrderController {
             } else {
                 System.out.println("No printer selected.");
             }
-
-
     }
 
     /**
@@ -1383,6 +1252,7 @@ public class OrderController {
 
     @FXML
     private void printOrder(ActionEvent event) {
+
         printOrderSummary2();
     }
 
@@ -1411,7 +1281,8 @@ public class OrderController {
         usernameLabel.setText("");
 
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/foodordersystem/Login.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource
+                    ("/com/example/foodordersystem/Login.fxml"));
             Parent root = loader.load();
 
             Stage loginStage = new Stage();
@@ -1471,6 +1342,7 @@ public class OrderController {
             // Load the TotalSummary.fxml file
             FXMLLoader loader = new FXMLLoader(getClass().getResource
                     ("/com/example/foodordersystem/TotalSummary.fxml"));
+
             Parent root = loader.load();
 
             // Create a new stage (window) to show the TotalSummary page
@@ -1489,8 +1361,8 @@ public class OrderController {
             // Load the TotalSummary.fxml file
             FXMLLoader loader = new FXMLLoader(getClass().getResource
                     ("/com/example/foodordersystem/BillGenerate.fxml"));
-            Parent root = loader.load();
 
+            Parent root = loader.load();
             // Create a new stage (window) to show the TotalSummary page
             Stage stage = new Stage();
             stage.setScene(new Scene(root));
@@ -1500,8 +1372,6 @@ public class OrderController {
             e.printStackTrace();
         }
     }
-
-
 
     public void searchOrderButton(ActionEvent actionEvent) {
     }
@@ -1523,8 +1393,6 @@ public class OrderController {
             e.printStackTrace();
         }
     }
-
-
 
     public void loadProductsForOrder(int orderId) {
         // Fetch order products

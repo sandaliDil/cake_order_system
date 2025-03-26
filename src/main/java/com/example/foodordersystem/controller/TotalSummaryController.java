@@ -62,6 +62,7 @@ public class TotalSummaryController {
      * @param date   Selected date to filter orders.
      * @param option Selected option to filter orders (1, 2, or 3).
      */
+
     public void loadOrdersByDate(LocalDate date, String option) {
         tableView.getColumns().clear(); // Clear existing columns
         tableView.getItems().clear();   // Clear existing data
@@ -165,7 +166,6 @@ public class TotalSummaryController {
         }
     }
 
-
     // 3. Add Branch column
     private void addBranchColumn() {
         TableColumn<Map<String, String>, String> branchColumn = new TableColumn<>("Branch");
@@ -188,7 +188,7 @@ public class TotalSummaryController {
 
     private String formatQuantity(Double quantity) {
         return (quantity == quantity.intValue()) ? String.valueOf(quantity.intValue()) :
-                String.format("%.1f", quantity);
+                String.format("%.2f", quantity);
     }
 
 

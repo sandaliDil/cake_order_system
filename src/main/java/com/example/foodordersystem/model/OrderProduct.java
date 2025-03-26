@@ -16,6 +16,7 @@ public class OrderProduct {
     }
 
     public OrderProduct(int productId, double quantity) {
+
     }
 
     public int getProductId() {
