@@ -43,17 +43,91 @@ public class TotalSummaryController {
 
 
     @FXML
+    public void initialize() {
+        optionComboBox.getItems().addAll( "Combined (Option 1 + 2)");
+    }
+
+    @FXML
     private void onFilterButtonClick() {
+
+//        LocalDate selectedDate = datePicker.getValue();
+//        String selectedOption = optionComboBox.getValue();
+//
+//        if (selectedDate != null && selectedOption != null) {
+//            allData.clear(); // Clear any previous data to prevent duplication
+//            tableView.getItems().clear(); // Clear the TableView before loading new data
+//            loadOrdersByDate(selectedDate, selectedOption); // Load data based on both date and option
+//        } else {
+//            System.out.println("Please select both a date and an option.");
+//        }
+
         LocalDate selectedDate = datePicker.getValue();
         String selectedOption = optionComboBox.getValue();
 
         if (selectedDate != null && selectedOption != null) {
-            allData.clear(); // Clear any previous data to prevent duplication
-            tableView.getItems().clear(); // Clear the TableView before loading new data
-            loadOrdersByDate(selectedDate, selectedOption); // Load data based on both date and option
+            allData.clear();
+            tableView.getItems().clear();
+
+            if (selectedOption.equals("Combined (Option 1 + 2)")) {
+                loadOrdersByDateCombined(selectedDate);
+            } else {
+                loadOrdersByDate(selectedDate, selectedOption);
+            }
         } else {
             System.out.println("Please select both a date and an option.");
         }
+    }
+
+    public void loadOrdersByDateCombined(LocalDate date) {
+        tableView.getColumns().clear(); // Clear existing columns
+        tableView.getItems().clear();   // Clear existing data
+
+        // Fetch data for both Option 1 and Option 2
+        Map<String, Map<String, Double>> option1Data = orderRepository.getOrderDetailsByDateAndOption(date, "අපේ කඩ");
+        Map<String, Map<String, Double>> option2Data = orderRepository.getOrderDetailsByDateAndOption(date, "ළග කඩ");
+
+        // Merge both datasets
+        Map<String, Map<String, Double>> mergedData = new HashMap<>();
+
+        for (String branch : option1Data.keySet()) {
+            mergedData.put(branch, new HashMap<>(option1Data.get(branch)));
+        }
+
+        for (String branch : option2Data.keySet()) {
+            mergedData.putIfAbsent(branch, new HashMap<>());
+
+            Map<String, Double> branchData = mergedData.get(branch);
+            for (String product : option2Data.get(branch).keySet()) {
+                branchData.put(product, branchData.getOrDefault(product, 0.0) +
+                        option2Data.get(branch).get(product));
+            }
+        }
+
+        if (mergedData.isEmpty()) {
+            System.out.println("No orders found for the selected date and combined options.");
+            return;
+        }
+
+        // Get all product names
+        List<String> productNames = getProductNames(mergedData);
+
+        // Initialize product sums map
+        Map<String, Double> productSums = initializeProductSums(productNames);
+
+        // Add table columns
+        addBranchColumn();
+        addProductColumns(productNames);
+        rotateColumnHeaders();
+
+        // Populate table data and calculate product sums
+        populateTableData(mergedData, productNames, productSums);
+        addFirst6TotalColumn();
+
+        // Add summary row
+        addSummaryRow(productNames, productSums);
+
+        // Initialize pagination
+        initializePagination();
     }
 
     /**
@@ -62,14 +136,12 @@ public class TotalSummaryController {
      * @param date   Selected date to filter orders.
      * @param option Selected option to filter orders (1, 2, or 3).
      */
-
     public void loadOrdersByDate(LocalDate date, String option) {
         tableView.getColumns().clear(); // Clear existing columns
         tableView.getItems().clear();   // Clear existing data
 
         // Fetch order details filtered by both date and option
         Map<String, Map<String, Double>> orderDetails = orderRepository.getOrderDetailsByDateAndOption(date, option);
-
 
         if (orderDetails.isEmpty()) {
             System.out.println("No orders found for the selected date and option.");
@@ -98,10 +170,9 @@ public class TotalSummaryController {
 
         // Initialize pagination
         initializePagination();
-//        addUpdateButtonColumn(productNames);
+
+//      addUpdateButtonColumn(productNames);
     }
-
-
 
     private List<String> getProductNames(Map<String, Map<String, Double>> orderDetails) {
         if (!orderDetails.isEmpty()) {
@@ -128,6 +199,7 @@ public class TotalSummaryController {
         ));
         tableView.getColumns().add(totalColumn);
     }
+
     private Map<String, Double> initializeProductSums(List<String> productNames) {
         Map<String, Double> productSums = new HashMap<>();
         for (String productName : productNames) {
@@ -191,21 +263,24 @@ public class TotalSummaryController {
                 String.format("%.2f", quantity);
     }
 
-
     // 8. Initialize pagination
     private void initializePagination() {
+
         pagination.setPageCount((int) Math.ceil((double) allData.size() / PAGE_SIZE));
         pagination.setCurrentPageIndex(0);
         pagination.setPageFactory(pageIndex -> createTablePage(pageIndex));
+
     }
 
     private void rotateColumnHeaders() {
+
         // Loop through all the columns
         for (TableColumn<?, ?> column : tableView.getColumns()) {
             // Skip the "Branch" column (or any other column you want to exclude from rotation)
             if ("Branch".equals(column.getText())) {
                 continue;
             }
+
             tableView.widthProperty().addListener((obs, oldVal, newVal)
                     -> {Platform.runLater(() -> {
                     TableHeaderRow headerRow = (TableHeaderRow) tableView.lookup("TableHeaderRow");
@@ -224,7 +299,6 @@ public class TotalSummaryController {
             rotatedLabel.setWrapText(true); // Disable text wrapping
             rotatedLabel.setMaxWidth(MAX_VALUE); // Ensure label stretches
             rotatedLabel.setMaxHeight(MAX_VALUE); // Ensure the label stretches vertically
-
 
             // Set the rotated label as the column's graphic
             column.setGraphic(rotatedLabel);
@@ -290,7 +364,6 @@ public class TotalSummaryController {
                         break;
                     }
                 }
-
                 printerJob.endJob();
             } else {
                 System.out.println("No printer selected.");
@@ -299,7 +372,6 @@ public class TotalSummaryController {
             System.out.println("Print job cancelled.");
         }
     }
-
 
     // Method to find a printer by its name
     private Printer getPrinterByName(String printerName) {
@@ -337,7 +409,6 @@ public class TotalSummaryController {
                 }
             }
         }
-
         // Add a new entry for the total quantity
         Map.Entry<String, String> totalEntry = new AbstractMap.SimpleEntry<>("TotalQuantity",
                 String.valueOf(totalQuantity));

@@ -548,7 +548,6 @@ public class OrderDetailsController {
             }
         });
     }
-
     private String formatQuantity(double quantity) {
         if (quantity == (int) quantity) {
             return String.valueOf((int) quantity); // Display as integer if no decimal places
