@@ -400,37 +400,31 @@ public class OrderDetailsController {
                 .append("</body>")
                 .append("</html>");
 
-        Platform.runLater(() -> {
-            // Get selected printer from ComboBox
-            String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
+        String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
+        if (selectedPrinterName != null && !selectedPrinterName.isEmpty()) {
+            Printer selectedPrinter = Printer.getAllPrinters().stream()
+                    .filter(p -> p.getName().equalsIgnoreCase(selectedPrinterName))
+                    .findFirst().orElse(null);
 
-            if (selectedPrinterName != null && !selectedPrinterName.isEmpty()) {
-                Printer selectedPrinter = Printer.getAllPrinters()
-                        .stream()
-                        .filter(p -> p.getName().equalsIgnoreCase(selectedPrinterName))
-                        .findFirst()
-                        .orElse(null);
+            if (selectedPrinter != null) {
+                System.out.println("Printing on printer: " + selectedPrinter.getName());
 
-                if (selectedPrinter != null) {
-
-                    System.out.println("Printing on printer: " + selectedPrinter.getName());
-                    try {
-                        synchronized (this) {
-                            printHTML1(secondPageContent.toString(), printerComboBox);
-                            printHTML(firstPageContent.toString(), 4, printerComboBox);
-                            System.out.println("Print job completed successfully.");
-                        }
-                    } catch (Exception e) {
-                        System.out.println("Error during printing: " + e.getMessage());
-                        e.printStackTrace();
-                    }
-                } else {
-                    System.out.println("Printer not found: " + selectedPrinterName);
+                try {
+                    // Print the first page, then call printHTML1 once it's done
+                    printHTML(firstPageContent.toString(), 4, printerComboBox, () -> {
+                        System.out.println("First print job completed. Now printing second page...");
+                        printHTML1(secondPageContent.toString(), printerComboBox);
+                    });
+                } catch (Exception e) {
+                    System.out.println("Error during printing: " + e.getMessage());
+                    e.printStackTrace();
                 }
             } else {
-                System.out.println("No printer selected.");
+                System.out.println("Printer not found: " + selectedPrinterName);
             }
-        });
+        } else {
+            System.out.println("No printer selected.");
+        }
     }
 
     private void printHTML1(String secondPageContent, ComboBox<String> printerComboBox) {
@@ -443,8 +437,6 @@ public class OrderDetailsController {
                                                                newState) -> {
             if (newState == Worker.State.SUCCEEDED) {
                 // Get content height dynamically
-                double contentHeight = Double.parseDouble(webEngine.executeScript("document.body.scrollHeight")
-                        .toString());
 
                 // Get the selected printer name from the ComboBox
                 String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
@@ -489,28 +481,22 @@ public class OrderDetailsController {
         });
     }
 
-    private void printHTML(String firstPageContent, int pageCount, ComboBox<String> printerComboBox) {
-
+    private void printHTML(String firstPageContent, int pageCount, ComboBox<String> printerComboBox, Runnable onPrintComplete) {
         WebView webView = new WebView();
         WebEngine webEngine = webView.getEngine();
         webEngine.loadContent(firstPageContent);
 
         // Wait until content is fully loaded
-        webEngine.getLoadWorker().stateProperty().addListener((observable, oldState,
-                                                               newState) -> {
+        webEngine.getLoadWorker().stateProperty().addListener((observable, oldState, newState) -> {
             if (newState == Worker.State.SUCCEEDED) {
-
-                double contentHeight = Double.parseDouble(webEngine.executeScript("document.body.scrollHeight")
-                        .toString());
-
-                // Get the selected printer name from the ComboBox
+                // Get the selected printer name
                 String selectedPrinterName = printerComboBox.getSelectionModel().getSelectedItem();
                 if (selectedPrinterName == null || selectedPrinterName.isEmpty()) {
                     System.out.println("No printer selected.");
                     return;
                 }
 
-                // Find the selected printer by name
+                // Find the selected printer
                 Printer printer = Printer.getAllPrinters()
                         .stream()
                         .filter(p -> p.getName().equalsIgnoreCase(selectedPrinterName))
@@ -522,26 +508,33 @@ public class OrderDetailsController {
                     return;
                 }
 
-                // Print the content for each page (based on pageCount)
+                // Create printer job
+                PrinterJob printerJob = PrinterJob.createPrinterJob(printer);
+                if (printerJob == null) {
+                    System.out.println("Failed to create printer job.");
+                    return;
+                }
+
+                PageLayout pageLayout = printer.createPageLayout(
+                        Paper.A4, PageOrientation.PORTRAIT, 10, 10, 10, 10
+                );
+
                 for (int i = 0; i < pageCount; i++) {
-                    PrinterJob printerJob = PrinterJob.createPrinterJob(printer);
-                    if (printerJob != null) {
-
-                        PageLayout pageLayout = printer.createPageLayout(
-                                Paper.A4, PageOrientation.PORTRAIT, 10, 10, 10, 10
-                        );
-
-                        // Print the WebView content
-                        boolean printed = printerJob.printPage(pageLayout, webView);
-                        if (printed) {
-                            printerJob.endJob();
-                            System.out.println("Printed page " + (i + 1) + " of " + pageCount);
-                        } else {
-                            System.out.println("Print job failed for page " + (i + 1));
-                        }
+                    boolean printed = printerJob.printPage(pageLayout, webView);
+                    if (printed) {
+                        System.out.println("Printed page " + (i + 1) + " of " + pageCount);
                     } else {
-                        System.out.println("Failed to create printer job.");
+                        System.out.println("Print job failed for page " + (i + 1));
                     }
+                }
+
+                // End print job after all pages are printed
+                printerJob.endJob();
+                System.out.println("Print job completed successfully.");
+
+                // Notify that printing is complete
+                if (onPrintComplete != null) {
+                    onPrintComplete.run();
                 }
             } else {
                 System.out.println("Web content failed to load.");
@@ -694,14 +687,15 @@ public class OrderDetailsController {
                 .append("<meta charset=\"UTF-8\">")
                 .append("<title>Order Summary</title>")
                 .append("<style>")
-                .append("@page { size: auto; margin: 10px; }")
-                .append("body { font-family: Arial, sans-serif; margin: 0; padding: 5px; font-size: 10px; width: 13cm;" +
-                        " height: 40cm; }")
+                .append("body { font-family: Arial, sans-serif; margin: 0; padding: 5px; font-size: 10px; width: 4.5cm;" +
+                        " height: auto; }")
                 .append("h2 { text-align: center; font-size: 16px; margin: 5px 0; }")
                 .append(".order-details { margin: 10px 0; }")
-                .append("table { width: 37%; border-collapse: collapse; }")
-                .append("th, td { text-align: center; border: 1px solid #000; text-align: left; padding: 5px; font-size: 10px; }")
-                .append("td.qty { text-align: center; width: 50px; }")
+                .append("table { width: 100%; border-collapse: collapse; writing-mode: horizontal-tb;}")
+                .append("th, td { border: 1px solid #000; padding: 5px; font-size: 10px; white-space: nowrap;" +
+                        " text-align:left; }")
+                .append("td.qty { text-align: center; width: 4" +
+                        "0px; }")
                 .append("th { background-color: #f2f2f2; }")
                 .append("</style>")
                 .append("</head>")
@@ -800,7 +794,7 @@ public class OrderDetailsController {
                     System.out.println("Printing on printer: " + selectedPrinter.getName());
                     try {
                         synchronized (this) {
-                            printHTML(firstPageContent.toString(), 1, printerComboBox);
+                            printHTML1(firstPageContent.toString(), printerComboBox);
                             System.out.println("Print job completed successfully.");
                         }
                     } catch (Exception e) {

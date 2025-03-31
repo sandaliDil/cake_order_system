@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="708.0" prefWidth="1315.0" stylesheets="@css/table_style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.foodordersystem.controller.TotalSummaryController">
+<AnchorPane prefHeight="705.0" prefWidth="1315.0" stylesheets="@css/table_style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.foodordersystem.controller.TotalSummaryController">
 
     <Button layoutX="1106.0" layoutY="322.0" mnemonicParsing="false" onAction="#onFilterButtonClick" prefHeight="50.0" prefWidth="180.0" style="-fx-background-color: #27b786;" text="Search">
         <font>
@@ -38,16 +38,16 @@
             <FXCollections fx:factory="observableArrayList">
                 <String fx:value="ළග කඩ " />
                 <String fx:value="දුර කඩ" />
-                <String fx:value="අපේ කඩ"/>
+                <String fx:value="අපේ කඩ" />
             </FXCollections>
         </items>
     </ComboBox>
-   <VBox layoutX="41.0" layoutY="42.0" prefHeight="616.0" prefWidth="1025.0">
+   <VBox layoutX="41.0" layoutY="42.0" prefHeight="653.0" prefWidth="1025.0">
       <children>
-          <TableView fx:id="tableView" editable="true" prefHeight="586.0" prefWidth="1030.0" />
+          <TableView fx:id="tableView" editable="true" prefHeight="657.0" prefWidth="1025.0" />
       </children>
    </VBox>
-   <Pagination fx:id="pagination" layoutX="30.0" layoutY="33.0" prefHeight="656.0" prefWidth="1051.0" />
+   <Pagination fx:id="pagination" layoutX="30.0" layoutY="33.0" prefHeight="670.0" prefWidth="1051.0" />
    <Label layoutX="1091.0" layoutY="74.0" prefHeight="18.0" prefWidth="84.0" text="Date : -">
       <font>
          <Font name="System Bold" size="19.0" />

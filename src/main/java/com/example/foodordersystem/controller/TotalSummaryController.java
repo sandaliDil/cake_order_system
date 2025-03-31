@@ -39,12 +39,13 @@ public class TotalSummaryController {
     private OrderRepository orderRepository = new OrderRepository(); // Order repository
     private List<Map<String, String>> allData = new ArrayList<>(); // Store all the data
 
-    private static final int PAGE_SIZE = 19; // Number of rows per page
+    private static final int PAGE_SIZE = 15; // Number of rows per page
 
 
     @FXML
     public void initialize() {
         optionComboBox.getItems().addAll( "Combined (Option 1 + 2)");
+
     }
 
     @FXML
@@ -76,6 +77,85 @@ public class TotalSummaryController {
         } else {
             System.out.println("Please select both a date and an option.");
         }
+    }
+
+    private void addDeleteButtonColumn() {
+        TableColumn<Map<String, String>, Void> deleteColumn = new TableColumn<>("Delete");
+
+        deleteColumn.setCellFactory(param -> new TableCell<>() {
+            private final Button deleteButton = new Button("X");
+
+            {
+                deleteButton.setOnAction(event -> {
+                    Map<String, String> rowData = getTableView().getItems().get(getIndex());
+                    removeRow(rowData);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(deleteButton);
+                }
+            }
+        });
+
+        tableView.getColumns().add(deleteColumn);
+    }
+
+    private void removeRow(Map<String, String> rowData) {
+        if (rowData != null) {
+            allData.remove(rowData);
+            tableView.getItems().remove(rowData);
+            updateProductTotals();
+        }
+    }
+
+    private void updateProductTotals() {
+        Map<String, Double> productSums = new HashMap<>();
+
+        // Recalculate sums for each column (excluding Branch and First6Total)
+        for (Map<String, String> row : allData) {
+            if (!row.get("Branch").equals("Total")) { // Ignore the "Total" row in calculation
+                for (String key : row.keySet()) {
+                    if (!key.equals("Branch") && !key.equals("First6Total")) {
+                        try {
+                            double value = Double.parseDouble(row.get(key));
+                            productSums.put(key, productSums.getOrDefault(key, 0.0) + value);
+                        } catch (NumberFormatException e) {
+                            // Handle cases where the value might not be a valid number
+                            productSums.put(key, productSums.getOrDefault(key, 0.0));
+                        }
+                    }
+                }
+            }
+        }
+
+        // Update the "Total" row with the recalculated values
+        for (Map<String, String> row : allData) {
+            if (row.get("Branch").equals("Total")) {
+                for (String key : productSums.keySet()) {
+                    row.put(key, formatQuantity(productSums.get(key))); // Ensure correct formatting
+                }
+                break;
+            }
+        }
+
+        // Refresh UI (if using a TableView)
+        tableView.refresh();
+    }
+
+    // Call this method after deleting a row
+    private void deleteRow(int rowIndex) {
+        if (rowIndex >= 0 && rowIndex < allData.size()) {
+            allData.remove(rowIndex);
+            updateProductTotals(); // Recalculate totals after deletion
+            tableView.refresh(); // Ensure UI reflects the changes
+        }
+
     }
 
     public void loadOrdersByDateCombined(LocalDate date) {
@@ -110,7 +190,7 @@ public class TotalSummaryController {
 
         // Get all product names
         List<String> productNames = getProductNames(mergedData);
-
+        System.out.println(productNames);
         // Initialize product sums map
         Map<String, Double> productSums = initializeProductSums(productNames);
 
@@ -128,8 +208,9 @@ public class TotalSummaryController {
 
         // Initialize pagination
         initializePagination();
-    }
 
+        addDeleteButtonColumn();
+    }
     /**
      * Load all orders placed on the given date into the TableView.
      *
@@ -172,6 +253,8 @@ public class TotalSummaryController {
         initializePagination();
 
 //      addUpdateButtonColumn(productNames);
+
+        addDeleteButtonColumn();
     }
 
     private List<String> getProductNames(Map<String, Map<String, Double>> orderDetails) {
@@ -227,7 +310,7 @@ public class TotalSummaryController {
 
                 if (i < 7) {
                     first6Total += quantity;
-                    System.out.println(quantity);
+
                 }
                 productSums.put(productName, productSums.getOrDefault(productName, 0.0) + quantity);
             }
@@ -245,7 +328,6 @@ public class TotalSummaryController {
                 .get("Branch")));
         tableView.getColumns().add(branchColumn);
     }
-
 
     private void addSummaryRow(List<String> productNames, Map<String, Double> productSums) {
         Map<String, String> summaryRow = new HashMap<>();
@@ -325,7 +407,7 @@ public class TotalSummaryController {
         // Create a label to display the selected date
         LocalDate selectedDate = datePicker.getValue();
         Label dateLabel = new Label("Date: " + (selectedDate != null ? selectedDate.toString() : "Not selected"));
-        dateLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-padding: 10px;");
+        dateLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
         // Include the header row for clarity in printing
         VBox container = new VBox();
@@ -413,7 +495,6 @@ public class TotalSummaryController {
         Map.Entry<String, String> totalEntry = new AbstractMap.SimpleEntry<>("TotalQuantity",
                 String.valueOf(totalQuantity));
         reorderedEntries.add(totalEntry);
-        System.out.println(totalQuantity);
         return reorderedEntries;
     }
 

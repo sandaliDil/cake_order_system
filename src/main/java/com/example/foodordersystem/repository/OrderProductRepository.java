@@ -4,7 +4,6 @@ import com.example.foodordersystem.database.DatabaseConnection;
 import com.example.foodordersystem.model.Order;
 import com.example.foodordersystem.model.OrderProduct;
 
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
