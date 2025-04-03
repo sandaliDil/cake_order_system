@@ -40,3 +40,5 @@ CREATE TABLE OrderItem (
     FOREIGN KEY (order_id) REFERENCES Orders (id),
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
+
+

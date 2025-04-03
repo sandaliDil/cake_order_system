@@ -4,7 +4,6 @@ import com.example.foodordersystem.model.Product;
 import com.example.foodordersystem.service.ProductService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
 public class AddProductController {
@@ -14,9 +13,6 @@ public class AddProductController {
 
     @FXML
     private TextField productCodeField;
-
-    @FXML
-    private Button saveButton;
 
     private final ProductService productService = new ProductService();
 
@@ -50,5 +46,4 @@ public class AddProductController {
         productNameField.clear();
         productCodeField.clear();
     }
-
 }

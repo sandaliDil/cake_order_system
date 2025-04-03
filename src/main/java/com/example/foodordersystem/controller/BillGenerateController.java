@@ -17,8 +17,6 @@ import java.io.*;
 import java.time.LocalDate;
 import java.util.*;
 
-
-
 public class BillGenerateController {
     @FXML
     private TableView<Map<String, String>> tableView; // TableView for summary display
@@ -66,7 +64,6 @@ public class BillGenerateController {
             System.out.println("No orders found for the selected date and option.");
             return;
         }
-
         // Get all product names
         List<String> productNames = getProductNames(orderDetails);
 
@@ -133,10 +130,10 @@ public class BillGenerateController {
 
     private List<String> getProductNames(Map<String, Map<String, Map<String, Double>>> orderDetails) {
         if (!orderDetails.isEmpty()) {
-            Map.Entry<String, Map<String, Map<String, Double>>> firstBranchEntry = orderDetails.entrySet().iterator().next();
-
-            Map.Entry<String, Map<String, Double>> firstUserEntry = firstBranchEntry.getValue().entrySet().iterator().next();
-
+            Map.Entry<String, Map<String, Map<String, Double>>> firstBranchEntry = orderDetails.entrySet()
+                    .iterator().next();
+            Map.Entry<String, Map<String, Double>> firstUserEntry = firstBranchEntry.getValue().entrySet()
+                    .iterator().next();
             return new ArrayList<>(firstUserEntry.getValue().keySet());
         }
         return new ArrayList<>();
@@ -148,7 +145,6 @@ public class BillGenerateController {
 //        tableView.getColumns().add(userColumn);
 //    }
 
-
     // 4. Add Product columns
     private void addProductColumns(List<String> productNames) {
         // Loop through the product names in the order they appear in the database
@@ -157,7 +153,6 @@ public class BillGenerateController {
             productColumn.setCellValueFactory(data -> new SimpleStringProperty(
                     data.getValue().getOrDefault(productName, "0")
             ));
-
             tableView.getColumns().add(productColumn);
         }
     }
@@ -178,7 +173,6 @@ public class BillGenerateController {
         branchColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().get("Branch")));
         tableView.getColumns().add(branchColumn);
     }
-
 
     private void populateTableData(Map<String, Map<String, Map<String, Double>>> orderDetails, List<String> productNames, Map<String, Double> productSums) {
         for (Map.Entry<String, Map<String, Map<String, Double>>> branchEntry : orderDetails.entrySet()) {
@@ -209,22 +203,18 @@ public class BillGenerateController {
                     } catch (NumberFormatException e) {
                         // Ignore non-numeric product names
                     }
-
                     productSums.put(productName, productSums.getOrDefault(productName, 0.0) + quantity);
                 }
-
                 row.put("First6Total", formatQuantity(first6Total));
                 allData.add(row);
             }
         }
     }
 
-
     // 7. Add summary row
     private void addSummaryRow(List<String> productNames, Map<String, Double> productSums) {
         Map<String, String> summaryRow = new HashMap<>();
         summaryRow.put("Branch", "Total");
-
         double first6TotalSummary = 0.0;
 
         for (int i = 0; i < productNames.size(); i++) {
@@ -237,7 +227,6 @@ public class BillGenerateController {
                 first6TotalSummary += productSum;
             }
         }
-
         summaryRow.put("First6Total", formatQuantity(first6TotalSummary));
         allData.add(0, summaryRow);
     }
@@ -265,7 +254,8 @@ public class BillGenerateController {
             if ("Branch".equals(column.getText())) {
                 continue;
             }
-            tableView.widthProperty().addListener((obs, oldVal, newVal) -> {
+            tableView.widthProperty().addListener((obs, oldVal, newVal)
+                    -> {
                 Platform.runLater(() -> {
                     TableHeaderRow headerRow = (TableHeaderRow) tableView.lookup("TableHeaderRow");
                     if (headerRow != null) {
@@ -283,7 +273,6 @@ public class BillGenerateController {
             rotatedLabel.setWrapText(true); // Disable text wrapping
             rotatedLabel.setMaxWidth(Double.MAX_VALUE); // Ensure label stretches
             rotatedLabel.setMaxHeight(Double.MAX_VALUE); // Ensure the label stretches vertically
-
 
             // Set the rotated label as the column's graphic
             column.setGraphic(rotatedLabel);
@@ -384,8 +373,6 @@ public class BillGenerateController {
 
         tableView.getColumns().add(printColumn);
     }
-
-
 
     private static final String BILL_NUMBER_FILE1 = "bill_number2.txt";
 
@@ -489,13 +476,16 @@ public class BillGenerateController {
                 .append("<title>Order Summary</title>")
                 .append("<style>")
                 .append("@page { size: auto; margin: 10px; }")
-                .append("table { width: 85%; border-collapse: collapse; margin-top: 3px; style='border: 1px solid black;' }")
+                .append("table { width: 85%; border-collapse: collapse; margin-top: 3px; style='border: 1px solid black;'}")
                 .append("th, td { border: 0.3px solid black ;font-size: 10px; padding: 2.5px;}")
                 .append("th { background-color:#050505; }")
                 .append("p {font-size: 12px;}")
                 .append("</style>")
                 .append("</head>")
-                .append("<p><strong>Date:</strong> ").append(selectedDate).append("   | Branch: ").append(rowData.get("Branch")).append("<strong> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp Bill No:</strong> ").append(billNumber).append("</p>")
+                .append("<p><strong>Date:</strong> ").append(selectedDate).append("   | Branch: ")
+                .append(rowData.get("Branch"))
+                .append("<strong> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp Bill No:</strong> ")
+                .append(billNumber).append("</p>")
                 .append("<table>")
                 .append("<tr>")
                 .append("<th>Product</th>")
@@ -505,10 +495,8 @@ public class BillGenerateController {
                 .append("<th>aaa</th>")
                 .append("</tr>");
 
-
         // Add existing products from rowData
         int rowIndex = 1; // Initialize row index for the fourth column (4th row)
-
 
         for (Map.Entry<String, String> entry : reorderedEntries) {
             if (!"Branch".equals(entry.getKey()) && !"First6Total".equals(entry.getKey())) {
@@ -637,14 +625,11 @@ public class BillGenerateController {
 
         }
         htmlBuilder.append("<tr>")
-
                 .append("<td style='border: 1px solid black;height: 18px;'>ලො කු පා න්</td>")
                 .append("<td style='border: 1px solid black; height: 18px;'></td>")
                 .append("<td style='border: 1px solid black; height: 18px;'></td>")
                 .append("<td style='border: 1px solid black;  height: 18px;'>Mi/Tub</td>")
                 .append("<td style='border: 1px solid black;  height: 18px;'></td>")
-
-
                 .append("</tr>");
 
         String[] products = {"තැ ටි පා න්", "රෝ ස් පා න්", "වියන් රෝ ල්", "මා ළු පා න්", "සීනි සම්බල් පා න්", "අච්චු පා න්", "සීනි බනිස්", "පො ඩි පා න්", "පේස්ට්‍රි", "ජෑ ම් පා න්", "මා ළු කෑ ම", "බිත්තර කෑ ම"};
@@ -662,7 +647,9 @@ public class BillGenerateController {
 
         htmlBuilder.append("</table>");
 
-        htmlBuilder.append("<p style='font-size: 12px;'><strong>Checked By: ____________________-</strong> ").append("<strong> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp User Name:</strong> ").append(rowData.get("User"))
+        htmlBuilder.append("<p style='font-size: 12px;'><strong>Checked By: ____________________-</strong> ")
+                .append("<strong> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp User Name:</strong> ")
+                .append(rowData.get("User"))
                 .append("</p>");
 
                 htmlBuilder.append("</body>")
@@ -713,7 +700,6 @@ public class BillGenerateController {
             }
         });
     }
-
 
     private double calculateTotalQuantity(List<Map.Entry<String, String>> reorderedEntries) {
         // Indices of products to include in the total quantity
@@ -799,7 +785,6 @@ public class BillGenerateController {
                 }
 
                 htmlBuilder.append("</td>");
-
 
                 if (rowIndex == 1) {
                     htmlBuilder.append("<td colspan='2'></td>");
@@ -979,7 +964,6 @@ public class BillGenerateController {
                 rowIndex++;
 
             }
-
         }
 
         htmlBuilder.append("<tr>")
@@ -990,9 +974,8 @@ public class BillGenerateController {
                 .append("<td style='border: 1px solid black;  height: 18px;'></td>")
                 .append("<td style='border: 1px solid black;  height: 18px;'>8000/</td>")
                 .append("<td style='border: 1px solid black;  height: 18px;'></td>")
-
-
                 .append("</tr>");
+
         htmlBuilder.append("<tr>")
 
                 .append("<td style='border: 1px solid black;height: 18px;'></td>")
@@ -1001,18 +984,15 @@ public class BillGenerateController {
                 .append("<td style='border: 1px solid black;  height: 18px;'></td>")
                 .append("<td style='border: 1px solid black;  height: 18px;'></td>")
                 .append("<td style='border: 1px solid black;  height: 18px;'></td>")
-
-
                 .append("</tr>");
-        htmlBuilder.append("<tr>")
 
+        htmlBuilder.append("<tr>")
                 .append("<td style='border: 1px solid black;height: 18px;'></td>")
                 .append("<td style='border: 1px solid black; height: 18px;'></td>")
-                .append("<td rowspan='3' colspan='2' style='border: 1px solid black; height: 18px;;'></td>")
+                .append("<td rowspan='3' colspan='2' style='border: 1px solid black;" +
+                        " height: 18px;;'></td>")
                 .append("<td style='border: 1px solid black;  height: 18px;'></td>")
                 .append("<td style='border: 1px solid black;  height: 18px;'></td>")
-
-
                 .append("</tr>");
 
         htmlBuilder.append("<tr>")
@@ -1036,7 +1016,6 @@ public class BillGenerateController {
                 .append("<td style='border: 1px solid black; height: 18px;'></td>")
                 .append("<td style='border: 1px solid black; height: 18px;'></td>")
                 .append("<td colspan='4' style='border: 1px solid black;'></td>")
-
                 .append("</tr>");
 
         htmlBuilder.append("<tr>")
@@ -1052,11 +1031,9 @@ public class BillGenerateController {
                 .append("<td style='border: 1px solid black; height: 18px;'></td>")
                 .append("<td style='border: 1px solid black; height: 18px;'></td>")
                 .append("<td colspan='4' rowspan='6' style='border: 1px solid black; '></td>")
-
                 .append("</tr>");
 
         htmlBuilder.append("<tr>")
-//                .append("<td colspan='3' style='border: 1px solid black; text-align: center;'>This cell spans 3 columns</td>")
                 .append("<td colspan='2' rowspan='3' style='border:1px solid black; height: 58px;'></td>")
 
                 .append("</tr>");
@@ -1065,8 +1042,10 @@ public class BillGenerateController {
         htmlBuilder.append("</table>");
         htmlBuilder .append("</body>");
         htmlBuilder.append("<p style='font-size: 12px;'><strong>Checked By: _ __ _ _ _ _ _ _ _ _ _ _ _ _ _-</strong> ")
-                .append("<strong> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp User Name:</strong> ").append(rowData.get("User"))
-                .append("<strong> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp තැ ටි ගණන: _ _ _ _ _ _ _ _ _</strong> ")
+                .append("<strong> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp User Name:</strong> ")
+                .append(rowData.get("User"))
+                .append("<strong> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp තැ ටි ගණන: _ _ _ _ _ _ _ _ _" +
+                        "</strong> ")
                 .append("</p>");
         htmlBuilder.append("</html>");
 

@@ -12,9 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.skin.TableHeaderRow;
 import javafx.scene.layout.VBox;
-import javafx.scene.control.ColorPicker;
 
-import java.awt.*;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.List;
@@ -31,10 +29,6 @@ public class TotalSummaryController {
     private ComboBox<String> optionComboBox; // ComboBox for selecting the option (1, 2, or 3)
     @FXML
     private Pagination pagination; // Pagination control
-    @FXML
-    private ColorPicker colorPicker;
-    @FXML
-    private Button applyColorButton;
 
     private OrderRepository orderRepository = new OrderRepository(); // Order repository
     private List<Map<String, String>> allData = new ArrayList<>(); // Store all the data
@@ -45,22 +39,10 @@ public class TotalSummaryController {
     @FXML
     public void initialize() {
         optionComboBox.getItems().addAll( "Combined (Option 1 + 2)");
-
     }
 
     @FXML
     private void onFilterButtonClick() {
-
-//        LocalDate selectedDate = datePicker.getValue();
-//        String selectedOption = optionComboBox.getValue();
-//
-//        if (selectedDate != null && selectedOption != null) {
-//            allData.clear(); // Clear any previous data to prevent duplication
-//            tableView.getItems().clear(); // Clear the TableView before loading new data
-//            loadOrdersByDate(selectedDate, selectedOption); // Load data based on both date and option
-//        } else {
-//            System.out.println("Please select both a date and an option.");
-//        }
 
         LocalDate selectedDate = datePicker.getValue();
         String selectedOption = optionComboBox.getValue();
@@ -117,34 +99,52 @@ public class TotalSummaryController {
     private void updateProductTotals() {
         Map<String, Double> productSums = new HashMap<>();
 
-        // Recalculate sums for each column (excluding Branch and First6Total)
+        // Iterate through all rows and recalculate totals
         for (Map<String, String> row : allData) {
-            if (!row.get("Branch").equals("Total")) { // Ignore the "Total" row in calculation
+            if (!"Total".equals(row.get("Branch"))) { // Ignore the "Total" row in calculation
+                double rowSum = 0.0;
+                int count = 0;
+
                 for (String key : row.keySet()) {
                     if (!key.equals("Branch") && !key.equals("First6Total")) {
                         try {
                             double value = Double.parseDouble(row.get(key));
                             productSums.put(key, productSums.getOrDefault(key, 0.0) + value);
+
+                            // Sum up the first six product values for this row
+                            if (count < 6) {
+                                rowSum += value;
+                                count++;
+                            }
                         } catch (NumberFormatException e) {
-                            // Handle cases where the value might not be a valid number
-                            productSums.put(key, productSums.getOrDefault(key, 0.0));
+                            // Ignore invalid values
                         }
                     }
                 }
+
+                // Update "First6Total" for the row
+                row.put("First6Total", formatQuantity(rowSum));
             }
         }
 
         // Update the "Total" row with the recalculated values
         for (Map<String, String> row : allData) {
-            if (row.get("Branch").equals("Total")) {
+            if ("Total".equals(row.get("Branch"))) {
+                double totalFirst6Total = 0.0;
                 for (String key : productSums.keySet()) {
                     row.put(key, formatQuantity(productSums.get(key))); // Ensure correct formatting
+
+                    // Sum up "First6Total" column for the total row
+                    if (!key.equals("First6Total")) {
+                        totalFirst6Total += productSums.get(key);
+                    }
                 }
+                row.put("First6Total", formatQuantity(totalFirst6Total));
                 break;
             }
         }
 
-        // Refresh UI (if using a TableView)
+        // Refresh UI to reflect changes
         tableView.refresh();
     }
 
@@ -248,8 +248,6 @@ public class TotalSummaryController {
 
         // Add summary row at the top
         addSummaryRow(productNames, productSums);
-
-        // Initialize pagination
         initializePagination();
 
 //      addUpdateButtonColumn(productNames);
@@ -257,12 +255,27 @@ public class TotalSummaryController {
         addDeleteButtonColumn();
     }
 
-    private List<String> getProductNames(Map<String, Map<String, Double>> orderDetails) {
-        if (!orderDetails.isEmpty()) {
-            Map.Entry<String, Map<String, Double>> firstEntry = orderDetails.entrySet().iterator().next();
-            return new ArrayList<>(firstEntry.getValue().keySet());
+    private List<String> getProductNames(Map<String, Map<String, Double>> orderData) {
+        // Define the desired product order manually
+        List<String> customOrder = Arrays.asList("පො ල්  කේක්", "බටර් කේක් ", "චො කලට් කේක් ", "ෆෘ ට් කේක්", "රිබන් කේක් ",
+                "බටර් ලේයර් කේ ක් ","ප්ලේන්ටි කේක්", "දො දො ල් ", "පැ ණි වළලු", "ස්පන්චි", "ටී බනිස්","මැ කරො නි ", "සුල්තා නා ","අඩපංචි",
+                "විශේෂ පා න් පො ඩි ", "විශේෂ පා න් ලො කු ", "රො  ක් කේ ක්", "රන් කේක්", "බනිස් ගෙඩි","චො කලට් රෝ ල් කැ ලි",
+                "චො කලට් රෝ ල් 1250/=","ක්\u200Dරීම් බනිස් ");
+
+        Set<String> availableProducts = new HashSet<>();
+        for (Map<String, Double> branchData : orderData.values()) {
+            availableProducts.addAll(branchData.keySet());
         }
-        return new ArrayList<>();
+
+        // Filter and retain only available products in the specified order
+        List<String> productList = new ArrayList<>();
+        for (String product : customOrder) {
+            if (availableProducts.contains(product)) {
+                productList.add(product);
+            }
+        }
+
+        return productList;
     }
 
     private void addProductColumns(List<String> productNames) {
@@ -302,19 +315,16 @@ public class TotalSummaryController {
             row.put("Branch", branchName);
 
             double first6Total = 0.0;
-            for (int i = 0; i < productNames.size(); i++) {
+            for (int i = 0; i < 7; i++) {
                 String productName = productNames.get(i);
                 Double quantity = productQuantities.getOrDefault(productName, 0.0);
                 row.put(productName, formatQuantity(quantity));
 
-
                 if (i < 7) {
                     first6Total += quantity;
-
                 }
                 productSums.put(productName, productSums.getOrDefault(productName, 0.0) + quantity);
             }
-
             row.put("First6Total", formatQuantity(first6Total));
             productSums.put("First6Total", productSums.get("First6Total") + first6Total);
             allData.add(row);
@@ -347,7 +357,6 @@ public class TotalSummaryController {
 
     // 8. Initialize pagination
     private void initializePagination() {
-
         pagination.setPageCount((int) Math.ceil((double) allData.size() / PAGE_SIZE));
         pagination.setCurrentPageIndex(0);
         pagination.setPageFactory(pageIndex -> createTablePage(pageIndex));
@@ -453,49 +462,6 @@ public class TotalSummaryController {
         } else {
             System.out.println("Print job cancelled.");
         }
-    }
-
-    // Method to find a printer by its name
-    private Printer getPrinterByName(String printerName) {
-        for (Printer printer : Printer.getAllPrinters()) {
-            if (printer.getName().equalsIgnoreCase(printerName)) {
-                return printer;
-            }
-        }
-        return null; // Return null if printer not found
-    }
-
-    private List<Map.Entry<String, String>> reorderRowData(Map<String, String> rowData) {
-        List<Map.Entry<String, String>> entries = new ArrayList<>(rowData.entrySet());
-
-        // Define the new order of indices. Adjust based on your needs.
-        int[] newOrder = {15, 5, 10, 0, 20, 19, 2, 21, 11, 6, 17, 13, 3, 4, 7, 22, 23, 12, 1, 8, 14, 18};
-
-        // Create a new list with the reordered entries
-        List<Map.Entry<String, String>> reorderedEntries = new ArrayList<>();
-        for (int index : newOrder) {
-            if (index < entries.size()) {
-                reorderedEntries.add(entries.get(index));
-            }
-        }
-
-        // Calculate the total for indices 0, 1, 2, 3, 4, 5, 6
-        double totalQuantity = 0.0;
-        for (int i = 0; i <= 6; i++) {
-            if (i < entries.size()) {
-                try {
-                    // Parse the value as a double
-                    totalQuantity += Double.parseDouble(entries.get(i).getValue());
-                } catch (NumberFormatException e) {
-                    // Ignore non-numeric values
-                }
-            }
-        }
-        // Add a new entry for the total quantity
-        Map.Entry<String, String> totalEntry = new AbstractMap.SimpleEntry<>("TotalQuantity",
-                String.valueOf(totalQuantity));
-        reorderedEntries.add(totalEntry);
-        return reorderedEntries;
     }
 
     public void onApplyColorClick(ActionEvent actionEvent) {
